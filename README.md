@@ -12,7 +12,7 @@
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.18)の「Assets」から、`Speaki_rpg_mine_patch-0.1.18.zip`をダウンロードしてください。
+[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.19)の「Assets」から、`Speaki_rpg_mine_patch-0.1.19.zip`をダウンロードしてください。
 
 対象サイトは[スピキ育成](https://speakirpg.overture.io.kr/)です。
 
@@ -46,7 +46,6 @@ F2の「某ゲーム風の操作」をオンにすると、次の操作を使え
 | Esc | チャットを閉じる |
 | E | リュックを開く・閉じる |
 | Ctrl単独 | エモート |
-| 右クリック | トロッコに乗車する。乗車をブロック配置より優先します |
 | Shift（乗車中） | トロッコから降りる |
 
 ## 表示言語

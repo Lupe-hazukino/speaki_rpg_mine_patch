@@ -1,5 +1,3 @@
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/b51fc2ce-22b7-4af9-a5e1-c4380bb4ebbf" /># Speaki_rpg_mine_patch
-
 ｽﾋﾟｷMMO（ｽﾋﾟｷ育成）のゲーム内ゲーム「鉱山」で利用可能な操作改善非公式MODです。
 このmodは、「鉱山」のみで動作します。
 開発者(GMDT）様より、許可をいただいております。

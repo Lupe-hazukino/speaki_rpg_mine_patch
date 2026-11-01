@@ -1,7 +1,8 @@
-# Speaki_rpg_mine_patch
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/b51fc2ce-22b7-4af9-a5e1-c4380bb4ebbf" /># Speaki_rpg_mine_patch
 
 ｽﾋﾟｷMMO（ｽﾋﾟｷ育成）のゲーム内ゲーム「鉱山」で利用可能な操作改善非公式MODです。
 このmodは、「鉱山」のみで動作します。
+開発者(GMDT）様より、許可をいただいております。
 
 ## 主な変更点
 
@@ -12,9 +13,11 @@
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.19)の「Assets」から、`Speaki_rpg_mine_patch-0.1.19.zip`をダウンロードしてください。
+[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.19)の「Assets」から、`Speaki_rpg_mine_patch-0.1.19.zip`（最新版）をダウンロードしてください。
 
 対象サイトは[スピキ育成](https://speakirpg.overture.io.kr/)です。
+ゲームのアップデートにより、しようできなくなることがあります。その場合は、随時更新します。
+お手数ですが、再度このページよりダウンロードください。
 
 ## 導入方法
 

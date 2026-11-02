@@ -13,7 +13,7 @@
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.20)の「Assets」から、`Speaki_rpg_mine_patch-0.1.20.zip`（最新版）をダウンロードしてください。
+[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v0.1.21)の「Assets」から、`Speaki_rpg_mine_patch-0.1.21.zip`（最新版）をダウンロードしてください。
 
 対象サイトは[スピキ育成](https://speakirpg.overture.io.kr/)です。
 ゲームのアップデートにより、使用できなくなることがあります。その場合は、随時更新します。
@@ -48,7 +48,7 @@ F2の「某ゲーム風の操作」をオンにすると、次の操作を使え
 | T | チャットを開いて文字を入力する。入力中のTは文字入力に使用します |
 | Esc | チャットを閉じる |
 | E | リュックを開く・閉じる |
-| Ctrl単独 | エモート |
+| Ctrl単独 | エモート。動作は二人称・三人称で表示します |
 | Shift（乗車中） | トロッコから降りる |
 
 ## 表示言語

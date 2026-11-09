@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CnyXd923.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-BwwETeXW.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CRU_92JX.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DV-raoHJ.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DSJD43y8.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CAInRo03.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  }
+]

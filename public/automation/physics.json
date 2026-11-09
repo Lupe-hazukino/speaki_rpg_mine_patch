@@ -1,0 +1,220 @@
+{
+  "normalizedSHA256": "047ec2ad60bc23be03fa56e1d7d4ba60e9df2db9df3e814544aaaaea8a1d6f34",
+  "parts": [
+    {
+      "kind": "statement",
+      "index": 1917
+    },
+    {
+      "kind": "statement",
+      "index": 1918
+    },
+    {
+      "kind": "statement",
+      "index": 1919
+    },
+    {
+      "kind": "statement",
+      "index": 1920
+    },
+    {
+      "kind": "statement",
+      "index": 1921
+    },
+    {
+      "kind": "statement",
+      "index": 1922
+    },
+    {
+      "kind": "statement",
+      "index": 1923
+    },
+    {
+      "kind": "statement",
+      "index": 1924
+    },
+    {
+      "kind": "statement",
+      "index": 1925
+    },
+    {
+      "kind": "statement",
+      "index": 1926
+    },
+    {
+      "kind": "statement",
+      "index": 1927
+    },
+    {
+      "kind": "statement",
+      "index": 1928
+    },
+    {
+      "kind": "statement",
+      "index": 1929
+    },
+    {
+      "kind": "statement",
+      "index": 1930
+    },
+    {
+      "kind": "statement",
+      "index": 1931
+    },
+    {
+      "kind": "statement",
+      "index": 1932
+    },
+    {
+      "kind": "statement",
+      "index": 1933
+    },
+    {
+      "kind": "statement",
+      "index": 1934
+    },
+    {
+      "kind": "statement",
+      "index": 1935
+    },
+    {
+      "kind": "statement",
+      "index": 1936
+    },
+    {
+      "kind": "statement",
+      "index": 1937
+    },
+    {
+      "kind": "statement",
+      "index": 1938
+    },
+    {
+      "kind": "statement",
+      "index": 1939
+    },
+    {
+      "kind": "statement",
+      "index": 1940
+    },
+    {
+      "kind": "statement",
+      "index": 2026
+    },
+    {
+      "kind": "statement",
+      "index": 2027
+    },
+    {
+      "kind": "statement",
+      "index": 2028
+    },
+    {
+      "kind": "statement",
+      "index": 2029
+    },
+    {
+      "kind": "statement",
+      "index": 2030
+    },
+    {
+      "kind": "statement",
+      "index": 2031
+    },
+    {
+      "kind": "statement",
+      "index": 2032
+    },
+    {
+      "kind": "statement",
+      "index": 2033
+    },
+    {
+      "kind": "statement",
+      "index": 2034
+    },
+    {
+      "kind": "statement",
+      "index": 2035
+    },
+    {
+      "kind": "statement",
+      "index": 2036
+    },
+    {
+      "kind": "statement",
+      "index": 2037
+    },
+    {
+      "kind": "statement",
+      "index": 2038
+    },
+    {
+      "kind": "statement",
+      "index": 2039
+    },
+    {
+      "kind": "statement",
+      "index": 2040
+    },
+    {
+      "kind": "variables",
+      "selections": [
+        [
+          2066,
+          1
+        ],
+        [
+          2066,
+          14
+        ],
+        [
+          2066,
+          15
+        ],
+        [
+          2066,
+          17
+        ],
+        [
+          2066,
+          18
+        ],
+        [
+          2066,
+          19
+        ],
+        [
+          2066,
+          20
+        ],
+        [
+          2066,
+          21
+        ],
+        [
+          2066,
+          22
+        ],
+        [
+          2066,
+          23
+        ]
+      ]
+    },
+    {
+      "kind": "worldStep"
+    }
+  ],
+  "exports": {
+    "createBody": 33229,
+    "advance": 33365,
+    "moveY": 33323,
+    "collides": 33299,
+    "unknown": 33285,
+    "fixedStep": 33224,
+    "maxStep": 33225,
+    "CameraClass": 33959,
+    "worldStep": "worldStep"
+  }
+}

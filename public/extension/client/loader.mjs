@@ -1,0 +1,80 @@
+/* Bind to the site's own client in memory. No game client is bundled here. */
+const legacyEntryURL='https://speakirpg.overture.io.kr/assets/index-CAInRo03.js';
+const legacyHash='662009e038ed2888eab925b7ec6b7448dd80ffc31bc7fafd8b619cd700a3edef';
+const legacyBindings=`
+// Speaki_rpg_mine_patch (スピキクラフトMOD): expose native interfaces before the game's normal boot.
+try { globalThis.__MINING_LOCAL_BIND_I18N__?.({getLocale:Sr,translate:I}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] Language binding',e)}
+try { globalThis.__MINING_LOCAL_BIND_PHYSICS__?.({WorldClass:pAe,CameraClass:jAe,advance:Rke,moveY:Pke,collides:jV,unknown:AV,fixedStep:jke,maxStep:Mke}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] Shift接続',e)}
+try { globalThis.__MINING_LOCAL_BIND_HOTBAR__?.({HUDClass:jPe,BuildClass:zNe,normalizeBrush:oW,saveBrushes:SNe,itemIcons:qH,itemName:$H,shapeName:dW,colorName:uW,canColor:nW,farHint:()=>I('ui.mining.target.far')}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] ホットバー接続',e)}
+try { globalThis.__MINING_LOCAL_BIND_ICONS__?.({itemIcons:qH,itemKinds:LH,iconForKind:QH,itemTile:YH,tileFor:wB,blockShape:qz,blockForItem:kind=>{const ore=PH.indexOf(kind);return ore>=0?uB.ORE_1+ore:kind===11?uB.STONE:kind===12?uB.DIRT:tW(kind,0)},createCartIconSource:()=>{const view=new YPe(()=>0),cart=view.createCart(0);return{root:cart.root,dispose:()=>{cart.root.removeFromParent();view.dispose()}}}}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] アイコン接続',e)}
+try { globalThis.__MINING_LOCAL_BIND_CONTROLS__?.({HUDClass:jPe,InputClass:VAe,SceneClass:sLe,ChatClass:pue,keyHints:hH,actionHints:mH,placeIntervalMs:DIe}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] 操作接続',e)}
+try { globalThis.__MINING_LOCAL_BIND_COMPASS__?.({SceneClass:sLe}); } catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] ショップ方角接続',e)}
+try {
+ const api={GameWorldClass:q5e,SceneClass:sLe,AvatarClass:_Fe,PickaxeKit:gFe,cloneAvatar:_a,colorForTier:lFe,tierFromColor:color=>[1,2,3,4].find(tier=>lFe(tier)===color)||1};
+ globalThis.__MINING_LOCAL_NATIVE_API__=api;globalThis.__MINING_LOCAL_BIND_AVATAR__?.(api);
+} catch(e){console.error('['+(globalThis.__MINING_LOCAL_I18N__?.t('modName')||'Speaki_rpg_mine_patch')+'] 全身表示接続',e)}
+`;
+const previousEntryURL='https://speakirpg.overture.io.kr/assets/index-DSJD43y8.js';
+const previousHash='88f7275378189e6429ed077816f1da971dca2f87c6554cf0bec850d097f9f2d8';
+const priorEntryURL='https://speakirpg.overture.io.kr/assets/index-DV-raoHJ.js';
+const nov5EntryURL='https://speakirpg.overture.io.kr/assets/index-CRU_92JX.js';
+const priorHash='07a9b1126c09e23265902951bf82c196bd9d559dbbabf5d9880f1e74d46bb6a8';
+const nov5Hash='712e900375b52aec332caf66a16b8730614928dd0f072939a87881b0ac6e58dd';
+// Names are resolved from the reviewed client's declarations, not guessed at run time.
+const previousNames={pAe:'rje',jAe:'xje',Rke:'OAe',Pke:'wAe',jV:'EV',AV:'TV',jke:'xAe',Mke:'SAe',jPe:'SFe',zNe:'APe',oW:'nW',SNe:'pPe',qH:'UH',QH:'JH',YH:'GH',$H:'YH',dW:'sW',uW:'oW',nW:'QU',Sr:'wr',wB:'yB',qz:'Hz',PH:'AH',LH:'NH',uB:'aB',tW:'ZU',YPe:'BFe',VAe:'jje',sLe:'QLe',pue:'Jle',hH:'dH',mH:'uH',q5e:'$7e',_Fe:'cIe',gFe:'sIe',_a:'io',lFe:'eIe',DIe:'vLe'};
+const priorNames={"pAe":"KLe","jAe":"uRe","Rke":"_Le","Pke":"pLe","jV":"pV","AV":"fV","jke":"uLe","Mke":"dLe","jPe":"dHe","zNe":"yVe","oW":"UU","SNe":"nVe","qH":"AH","QH":"FH","YH":"MH","$H":"IH","dW":"JU","uW":"qU","nW":"zU","Sr":"xr","wB":"oB","qz":"kz","PH":"_H","LH":"bH","uB":"Kz","tW":"RU","YPe":"kHe","VAe":"bRe","sLe":"VWe","pue":"Xpe","hH":"QV","mH":"ZV","q5e":"not","_Fe":"ZHe","gFe":"XHe","_a":"Sa","lFe":"UHe","DIe":"sWe"};
+const nov5Names={"pAe":"hRe","jAe":"NRe","Rke":"FLe","Pke":"jLe","jV":"aV","AV":"iV","jke":"OLe","Mke":"kLe","jPe":"HHe","zNe":"YVe","oW":"HU","SNe":"MVe","qH":"OH","QH":"NH","YH":"AH","$H":"PH","dW":"qU","uW":"KU","nW":"RU","Sr":"xr","wB":"Xz","qz":"vz","PH":"hH","LH":"vH","uB":"Iz","tW":"LU","YPe":"oUe","VAe":"URe","sLe":"_Ge","pue":"e_","hH":"YV","mH":"JV","q5e":"Not","_Fe":"OUe","gFe":"DUe","_a":"va","lFe":"bUe","DIe":"LWe"};
+const previousBindings=legacyBindings.replace(/[$A-Z_a-z][$\w]*/g,name=>previousNames[name]||name)
+  .replace('const api={','const api={occludesBlock:sB,avatarAssetsURL:"https://speakirpg.overture.io.kr/assets/speakiAssets-BMwsYJWu.js",');
+const priorBindings=legacyBindings.replace(/[$A-Z_a-z][$\w]*/g,name=>priorNames[name]||name)
+  .replace('const api={','const api={occludesBlock:Jz,avatarAssetsURL:"https://speakirpg.overture.io.kr/assets/speakiAssets-Ch__-ois.js",avatarAssetExports:{faceMaterials:"R",faceExpression:"I",defaultExpression:"F"},');
+const nov5Bindings=legacyBindings.replace(/[$A-Z_a-z][$\w]*/g,name=>nov5Names[name]||name)
+  .replace('const api={','const api={occludesBlock:Rz,avatarAssetsURL:"https://speakirpg.overture.io.kr/assets/speakiAssets-Ch__-ois.js",avatarAssetExports:{faceMaterials:"R",faceExpression:"I",defaultExpression:"F"},');
+const nov8EntryURL="https://speakirpg.overture.io.kr/assets/index-BwwETeXW.js";
+const nov8Hash="3321046e05f24d7905bc2e958c1c1489e0c40a471db93872b0fe5e179576b91e";
+const nov8Names={"pAe":"SRe","jAe":"BRe","Rke":"HLe","Pke":"RLe","jV":"nV","AV":"tV","jke":"FLe","Mke":"ILe","jPe":"JHe","zNe":"tHe","oW":"BU","SNe":"RVe","qH":"TH","QH":"AH","YH":"DH","$H":"jH","dW":"GU","uW":"WU","nW":"IU","Sr":"br","wB":"qz","qz":"hz","PH":"fH","LH":"hH","uB":"Nz","tW":"FU","YPe":"fUe","VAe":"XRe","sLe":"CGe","pue":"ome","hH":"KV","mH":"GV","q5e":"Yot","_Fe":"PUe","gFe":"NUe","_a":"xa","lFe":"EUe","DIe":"UWe"};
+const nov8Bindings=legacyBindings.replace(/[$A-Z_a-z][$\w]*/g,name=>nov8Names[name]||name)
+  .replace('const api={','const api={occludesBlock:Fz,avatarAssetsURL:"https://speakirpg.overture.io.kr/assets/speakiAssets-Ch__-ois.js",avatarAssetExports:{faceMaterials:"R",faceExpression:"I",defaultExpression:"F"},');
+export const entryURL="https://speakirpg.overture.io.kr/assets/index-CnyXd923.js";
+export const reviewedHash="fe170c3678647395e2cf8f7a3b3fc84a9ca095e699a34a89a4ace88431807937";
+const currentNames={"pAe":"KHe","jAe":"uUe","Rke":"fHe","Pke":"cHe","jV":"JB","AV":"qB","jke":"aHe","Mke":"oHe","jPe":"yqe","zNe":"EKe","oW":"kU","SNe":"lKe","qH":"hH","QH":"bH","YH":"_H","$H":"xH","dW":"PU","uW":"NU","nW":"TU","Sr":"jr","wB":"Az","qz":"XR","PH":"nH","LH":"aH","uB":"hz","tW":"wU","YPe":"Lqe","VAe":"bUe","sLe":"JYe","pue":"Fme","hH":"RV","mH":"LV","q5e":"jdt","_Fe":"aJe","gFe":"iJe","_a":"Ea","lFe":"Zqe","DIe":"mYe"};
+export const bindings=legacyBindings.replace(/[$A-Z_a-z][$\w]*/g,name=>currentNames[name]||name)
+  .replace('const api={','const api={occludesBlock:_z,worldHeight:128,avatarAssetsURL:"https://speakirpg.overture.io.kr/assets/speakiAssets-Ch__-ois.js",avatarAssetExports:{faceMaterials:"R",faceExpression:"I",defaultExpression:"F"},');
+export const clientProfiles=Object.freeze([
+  Object.freeze({id:'current',entryURL,hash:reviewedHash,boot:'oht().catch(',imports:22,bindings,names:currentNames,avatarAssets:'speakiAssets-Ch__-ois.js',avatarAssetExports:{faceMaterials:'R',faceExpression:'I',defaultExpression:'F'}}),
+  Object.freeze({id:'nov8',entryURL:nov8EntryURL,hash:nov8Hash,boot:'wut().catch(',imports:22,bindings:nov8Bindings,names:nov8Names,avatarAssets:'speakiAssets-Ch__-ois.js',avatarAssetExports:{faceMaterials:'R',faceExpression:'I',defaultExpression:'F'}}),
+  Object.freeze({id:'nov5',entryURL:nov5EntryURL,hash:nov5Hash,boot:'cut().catch(',imports:21,bindings:nov5Bindings,names:nov5Names,avatarAssets:'speakiAssets-Ch__-ois.js',avatarAssetExports:{faceMaterials:'R',faceExpression:'I',defaultExpression:'F'}}),
+  Object.freeze({id:'prior',entryURL:priorEntryURL,hash:priorHash,boot:'Alt().catch(',imports:21,bindings:priorBindings,names:priorNames,avatarAssets:'speakiAssets-Ch__-ois.js',avatarAssetExports:{faceMaterials:'R',faceExpression:'I',defaultExpression:'F'}}),
+  Object.freeze({id:'previous',entryURL:previousEntryURL,hash:previousHash,boot:'Ont().catch(',imports:21,bindings:previousBindings,names:previousNames,avatarAssets:'speakiAssets-BMwsYJWu.js'}),
+  Object.freeze({id:'legacy',entryURL:legacyEntryURL,hash:legacyHash,boot:'Ttt().catch(',imports:19,bindings:legacyBindings,names:Object.fromEntries(Object.keys(previousNames).map(name=>[name,name])),avatarAssets:'speakiAssets-0gVUOblX.js'})
+]);
+export async function prepareClient(source,requestedURL=entryURL){
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(source));
+  const hash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+  const profile=clientProfiles.find(value=>value.hash===hash),reviewed=!!profile;
+  let imports=0;
+  let code=source.replace(/(\bfrom\s*|\bimport\(\s*)(["'`])(\.[^"'`]+)\2/g,(_,prefix,quote,path)=>{
+    imports++;return prefix+quote+new URL(path,requestedURL).href+quote;
+  });
+  if(reviewed){
+    if(imports!==profile.imports||source.split(profile.boot).length!==2||source.includes('import.meta'))throw Error(localText('clientStructureChanged','The game client structure has changed.'));
+    code=code.replace(profile.boot,profile.bindings+profile.boot);
+  }
+  return {code,reviewed,hash,imports,profile:profile?.id || null};
+}
+async function boot(){
+  const scriptURLs=new Set(Array.from(document.scripts,script=>script.src));
+  const requested=clientProfiles.find(value=>scriptURLs.has(value.entryURL)) || clientProfiles[0];
+  // DNR redirects only script requests. This fetch remains a normal site request.
+  const response=await fetch(requested.entryURL,{credentials:'same-origin',cache:'no-cache'});
+  if(!response.ok)throw Error(localText('clientFetchFailed','Could not fetch the game client: '+response.status,{status:response.status}));
+  const prepared=await prepareClient(await response.text(),requested.entryURL);
+  if(!prepared.reviewed)console.warn('['+localText('modName','Speaki_rpg_mine_patch')+'] '+localText('clientUpdated','Game updated. Starting without the MOD.'));
+  const url=URL.createObjectURL(new Blob([prepared.code],{type:'text/javascript'}));
+  try {await import(url)} finally {URL.revokeObjectURL(url)}
+}
+function localText(key,fallback,params){return globalThis.__MINING_LOCAL_I18N__?.t(key,params)||fallback}
+if(typeof window!=='undefined'&&location.hostname==='speakirpg.overture.io.kr')boot().catch(error=>{
+  console.error('['+localText('modName','Speaki_rpg_mine_patch')+'] '+localText('clientBootFailed','The MOD could not connect. Disable it and reload the game.'),error);
+  window.dispatchEvent(new CustomEvent('mining-local-bridge-error',{detail:String(error.message||error)}));
+});

@@ -1,0 +1,43 @@
+// Runs only after the strict whole-entry and dependency gate has passed.
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {pathToFileURL,fileURLToPath} from 'node:url';
+import {parseJS,sha} from './analyze.mjs';
+import {analyze as scopes} from 'eslint-scope';
+import {physicsFixture} from './physics.mjs';
+const root=fileURLToPath(new URL('../../',import.meta.url)),out=process.env.SPEAKI_AUTOMATION_OUT||path.join(root,'public/automation/out');
+const report=JSON.parse(fs.readFileSync(path.join(out,'report.json')));
+assert.ok(report.status==='candidate'||report.status==='unchanged'&&report.scope==='full');
+const extension=path.join(report.status==='candidate'?path.join(out,'candidate'):root,'public/extension');
+const runtime=path.join(out,'runtime');fs.mkdirSync(path.join(runtime,'public'),{recursive:true});
+fs.cpSync(extension,path.join(runtime,'public/extension'),{recursive:true});
+fs.cpSync(path.join(root,'public/src'),path.join(runtime,'public/src'),{recursive:true});
+fs.cpSync(path.join(out,'research'),path.join(runtime,'research'),{recursive:true});
+fs.cpSync(path.join(root,'public/automation/regression'),path.join(runtime,'public/tools'),{recursive:true});
+fs.mkdirSync(path.join(runtime,'tools/vendor'),{recursive:true});
+fs.writeFileSync(path.join(runtime,'tools/vendor/acorn.mjs'),'export {parse} from '+JSON.stringify(pathToFileURL(path.join(root,'public/automation/node_modules/acorn/dist/acorn.mjs')).href)+';');
+const {clientProfiles,prepareClient}=await import(pathToFileURL(path.join(extension,'client/loader.mjs'))),profile=clientProfiles[0];
+const source=fs.readFileSync(path.join(out,'research',new URL(profile.entryURL).pathname.split('/').at(-1)),'utf8');
+assert.equal(sha(source),profile.hash);
+const prepared=await prepareClient(source,profile.entryURL);assert.equal(prepared.profile,'current');parseJS(prepared.code);
+assert.equal(source.split(profile.boot).length,2);
+const fallback=await prepareClient(source+'\n// unreviewed bytes',profile.entryURL);assert.equal(fallback.reviewed,false);assert.ok(!fallback.code.includes(profile.bindings));
+const originalScopes=scopes(parseJS(source),{ecmaVersion:2025,sourceType:'module'}),top=originalScopes.scopes.find(s=>s.type==='module');
+const locals=new Set(top.variables.map(v=>v.name)),injected=scopes(parseJS(profile.bindings),{ecmaVersion:2025,sourceType:'module'});
+for(const ref of injected.globalScope.through)assert.ok(locals.has(ref.identifier.name)||['globalThis','console'].includes(ref.identifier.name),'Unresolved injected binding '+ref.identifier.name);
+const rules=JSON.parse(fs.readFileSync(path.join(extension,'rules.json')));
+for(const item of clientProfiles)assert.ok(rules.some(r=>r.condition.urlFilter==='|'+item.entryURL+'|'&&r.action.redirect.extensionPath==='/client/loader.mjs'));
+for(const script of fs.readdirSync(extension).filter(n=>n.endsWith('.js')))parseJS(fs.readFileSync(path.join(extension,script),'utf8'));
+const version=JSON.parse(fs.readFileSync(path.join(extension,'manifest.json'))).version;
+fs.mkdirSync(path.join(runtime,'work/evidence/public-'+version),{recursive:true});
+fs.mkdirSync(path.join(runtime,'work/evidence/current'),{recursive:true});
+fs.writeFileSync(path.join(runtime,'work/evidence/current/current-native.mjs'),physicsFixture(source,profile,JSON.parse(fs.readFileSync(path.join(out,'research/snapshot.json')))));
+const passed=[];
+for(const test of ['verify-sneak.mjs','verify-render-settings.mjs','verify-lighting-modes.mjs','verify-current-lighting.mjs','verify-shop-compass.mjs','verify-water.mjs']){
+  const run=spawnSync(process.execPath,[path.join(runtime,'public/tools',test)],{cwd:runtime,encoding:'utf8',timeout:120000});
+  if(run.status!==0)throw Error(test+' failed: '+run.stderr+' '+run.stdout);
+  console.log(test+': passed');passed.push(test);
+}
+fs.writeFileSync(path.join(out,'validation.json'),JSON.stringify({version,entry:profile.entryURL,entrySHA256:profile.hash,profileBindingsResolve:true,unknownHashFallback:true,regressions:passed,liveGameLogin:false},null,2)+'\n');

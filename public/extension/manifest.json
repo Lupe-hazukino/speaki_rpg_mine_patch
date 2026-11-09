@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extensionName__",
+  "version": "1.2.2",
+  "description": "ｽﾋﾟｷMMO（ｽﾋﾟｷ育成）のゲーム内ゲーム「鉱山」で利用可能な操作改善非公式MODです。\nGMDTに許可を取っています。\nこのmodは、「鉱山」のみで動作します。\n\n以下は、主な変更点です。\n・アイテム欄のテクスチャ変更\n・アイテムのテクスチャ変更\n・UIの改善\n・キーバインドの変更および追加",
+  "minimum_chrome_version": "111",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://speakirpg.overture.io.kr/*"
+      ],
+      "js": [
+        "resources.js",
+        "i18n.js",
+        "sneak.js",
+        "hotbar.js",
+        "inventory.js",
+        "item-icons.js",
+        "mining-avatar.js",
+        "camera.js",
+        "paper-doll.js",
+        "shop-compass.js",
+        "controls.js",
+        "realistic-lighting.js",
+        "realistic-water.js",
+        "local-shadows.js",
+        "main.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "permissions": [
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "https://speakirpg.overture.io.kr/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "mining_native_bridge",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "client/loader.mjs"
+      ],
+      "matches": [
+        "https://speakirpg.overture.io.kr/*"
+      ]
+    }
+  ],
+  "default_locale": "en"
+}

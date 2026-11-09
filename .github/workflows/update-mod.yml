@@ -1,0 +1,115 @@
+name: MOD compatibility monitor
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+    - cron: '37 3 * * *'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: '検証済みの互換更新を公開する（オフなら検証のみ）'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-mod.yml'
+      - 'public/automation/**'
+      - 'public/extension/**'
+      - 'public/src/**'
+  pull_request:
+    paths:
+      - '.github/workflows/update-mod.yml'
+      - 'public/automation/**'
+      - 'public/extension/**'
+      - 'public/src/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mod-compatibility-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install pinned parser dependencies
+        run: npm ci --prefix public/automation --ignore-scripts --no-audit --no-fund
+      - name: Test compatibility gate and publisher
+        run: |
+          npm test --prefix public/automation
+          python3 -m unittest discover -s public/automation/tests -p 'test_*.py' -v
+      - name: Read previously reported updates
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 public/automation/observations.py
+      - name: Detect and classify game update
+        id: detect
+        env:
+          FULL_CHECK: ${{ github.event_name != 'schedule' || github.event.schedule == '37 3 * * *' }}
+        run: |
+          if [ "$FULL_CHECK" = true ]; then
+            node public/automation/check.mjs --full
+          else
+            node public/automation/check.mjs
+          fi
+      - name: Validate native bindings and MOD behavior
+        if: steps.detect.outputs.full == 'true'
+        run: |
+          node public/automation/validate.mjs
+          node public/automation/selftest-client.mjs
+      - name: Build verified public ZIP
+        if: steps.detect.outputs.status == 'candidate'
+        run: python3 public/automation/package.py
+      - name: Finalize report
+        if: always()
+        env:
+          CHECK_OUTCOME: ${{ job.status }}
+        run: python3 public/automation/finish-report.py
+      - name: Save report and candidate (never upstream game files)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: compatibility-result
+          path: |
+            public/automation/out/report.json
+            public/automation/out/validation.json
+            public/automation/out/candidate/
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    needs: check
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.check.result != 'cancelled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      actions: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: compatibility-result
+          path: public/automation/out
+      - name: Publish validated update or record review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLISH_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' && inputs.publish }}
+        run: python3 public/automation/publish.py

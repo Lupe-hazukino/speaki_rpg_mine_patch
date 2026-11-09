@@ -103,11 +103,24 @@ def report_review(api, report):
         print('Review already recorded: '+key)
         return
     run = f'https://github.com/{REPO}/actions/runs/{os.environ.get("GITHUB_RUN_ID", "")}'
-    body = marker+'\n\n自動更新を停止しました。現在の配布版は維持されています。\n\n'+report.get('reason','自動検証が完了しませんでした。')
-    body += '\n\n対象: '+report.get('entryURL','取得できませんでした')+'\n\n[検証ログ]('+run+')'
+    error = report.get('status') == 'error'
+    result = '自動検証に失敗しました。' if error else 'ゲーム側の変更を検知しましたが、鉱山MODの互換性を自動確認できませんでした。'
+    body = marker+'\n\n'+result+' 自動公開を停止し、現在の配布版を維持しています。'
+    body += '\n\n鉱山に対する修正が必要か、以下の検出内容を確認してください。現時点では鉱山の不具合が確定したという意味ではありません。'
+    body += '\n\n- 配布版: '+str(report.get('baseVersion') or '取得できませんでした')
+    body += '\n- 検証日時（UTC）: '+str(report.get('checkedAt') or '実行ログを参照')
+    body += '\n- 判定: '+('検証失敗・対応要否の確認が必要' if error else '互換性未確認・対応要否の確認が必要')
+    if 'structureChanged' in report:
+        body += '\n- メイン処理の構造変更: '+('あり' if report['structureChanged'] else 'なし')
+    body += '\n\n検出理由: '+report.get('reason','自動検証が完了しませんでした。')
+    dependencies = report.get('changedDependencies', [])
+    if dependencies:
+        body += '\n\n変更された依存ファイル:\n\n'+'\n'.join('- '+url for url in dependencies)
+    body += '\n\n対象: '+(report.get('entryURL') or '取得できませんでした')+'\n\n[検証ログ]('+run+')'
     cache = {'entryURL': report.get('entryURL'), 'entryHash': report.get('entryHash'), 'reviewKey': key}
     body += '\n\n<!-- speaki-observation:'+json.dumps(cache,separators=(',',':'))+' -->'
-    api.request('POST', '/issues', {'title': '[MOD互換性] 確認が必要 '+key, 'body': body})
+    api.request('POST', '/issues', {'title': '[鉱山MOD] 対応要否の確認が必要 '+key, 'body': body,
+                                  'assignees': ['Lupe-hazukino']})
 
 def main():
     assert os.environ.get('GITHUB_REF') == 'refs/heads/main'

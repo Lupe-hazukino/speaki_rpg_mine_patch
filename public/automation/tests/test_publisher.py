@@ -100,5 +100,30 @@ class PublisherTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             publisher.expected_readme(source + '\nSpeaki_rpg_mine_patch-1.2.2.zip','1.2.2','1.2.3')
 
+    def test_review_reports_evidence_and_assigns_owner_without_claiming_a_bug(self):
+        api = MockAPI()
+        report = {'status':'review', 'baseVersion':'1.2.2', 'checkedAt':'2026-11-09T12:00:00Z',
+                  'entryURL':'https://speakirpg.overture.io.kr/assets/index-new.js',
+                  'entryHash':'b'*64, 'reason':'Structure changed', 'structureChanged':True,
+                  'changedDependencies':['https://speakirpg.overture.io.kr/assets/mine-new.js']}
+        publisher.report_review(api, report)
+        issue = api.existing_issues[0]
+        self.assertEqual(issue['assignees'], ['Lupe-hazukino'])
+        self.assertTrue(issue['title'].startswith('[鉱山MOD] 対応要否の確認が必要 '))
+        for text in ['配布版: 1.2.2', report['checkedAt'], report['entryURL'], report['reason'],
+                     report['changedDependencies'][0], 'メイン処理の構造変更: あり',
+                     '鉱山の不具合が確定したという意味ではありません', '[検証ログ]']:
+            self.assertIn(text, issue['body'])
+
+    def test_check_failure_reports_unknowns_without_claiming_game_changed(self):
+        api = MockAPI()
+        publisher.report_review(api, {'status':'error', 'reason':'Download timed out'})
+        body = api.existing_issues[0]['body']
+        self.assertIn('自動検証に失敗しました', body)
+        self.assertIn('配布版: 取得できませんでした', body)
+        self.assertIn('Download timed out', body)
+        self.assertNotIn('ゲーム側の変更を検知しました', body)
+        self.assertNotIn('メイン処理の構造変更', body)
+
 if __name__ == '__main__':
     unittest.main()

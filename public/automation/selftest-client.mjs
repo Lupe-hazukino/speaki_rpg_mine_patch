@@ -37,4 +37,4 @@ assert.equal(run.status,0,run.stderr+'\n'+run.stdout);
 const packageTest=spawnSync(process.env.PYTHON||'python3',[path.join(root,'public/automation/verify-candidate-fixture.py'),repo,temporary],{encoding:'utf8',timeout:30000});
 assert.equal(packageTest.status,0,packageTest.stderr+'\n'+packageTest.stdout);
 console.log(packageTest.stdout.trim());
-console.log('Artificial rename: candidate, bindings and six regression suites passed; constant change rejected. No publication.');
+console.log('Artificial rename: candidate, bindings and eight regression suites passed; constant change rejected. No publication.');

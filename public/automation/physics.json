@@ -1,46 +1,6 @@
 {
-  "normalizedSHA256": "047ec2ad60bc23be03fa56e1d7d4ba60e9df2db9df3e814544aaaaea8a1d6f34",
+  "normalizedSHA256": "0fd1f9865c91d9d3e4fb97ff29d55e9b74fff98a4edbeaa3aa4136708219de45",
   "parts": [
-    {
-      "kind": "statement",
-      "index": 1917
-    },
-    {
-      "kind": "statement",
-      "index": 1918
-    },
-    {
-      "kind": "statement",
-      "index": 1919
-    },
-    {
-      "kind": "statement",
-      "index": 1920
-    },
-    {
-      "kind": "statement",
-      "index": 1921
-    },
-    {
-      "kind": "statement",
-      "index": 1922
-    },
-    {
-      "kind": "statement",
-      "index": 1923
-    },
-    {
-      "kind": "statement",
-      "index": 1924
-    },
-    {
-      "kind": "statement",
-      "index": 1925
-    },
-    {
-      "kind": "statement",
-      "index": 1926
-    },
     {
       "kind": "statement",
       "index": 1927
@@ -99,47 +59,43 @@
     },
     {
       "kind": "statement",
-      "index": 2026
+      "index": 1941
     },
     {
       "kind": "statement",
-      "index": 2027
+      "index": 1942
     },
     {
       "kind": "statement",
-      "index": 2028
+      "index": 1943
     },
     {
       "kind": "statement",
-      "index": 2029
+      "index": 1944
     },
     {
       "kind": "statement",
-      "index": 2030
+      "index": 1945
     },
     {
       "kind": "statement",
-      "index": 2031
+      "index": 1946
     },
     {
       "kind": "statement",
-      "index": 2032
+      "index": 1947
     },
     {
       "kind": "statement",
-      "index": 2033
+      "index": 1948
     },
     {
       "kind": "statement",
-      "index": 2034
+      "index": 1949
     },
     {
       "kind": "statement",
-      "index": 2035
-    },
-    {
-      "kind": "statement",
-      "index": 2036
+      "index": 1950
     },
     {
       "kind": "statement",
@@ -158,46 +114,90 @@
       "index": 2040
     },
     {
+      "kind": "statement",
+      "index": 2041
+    },
+    {
+      "kind": "statement",
+      "index": 2042
+    },
+    {
+      "kind": "statement",
+      "index": 2043
+    },
+    {
+      "kind": "statement",
+      "index": 2044
+    },
+    {
+      "kind": "statement",
+      "index": 2045
+    },
+    {
+      "kind": "statement",
+      "index": 2046
+    },
+    {
+      "kind": "statement",
+      "index": 2047
+    },
+    {
+      "kind": "statement",
+      "index": 2048
+    },
+    {
+      "kind": "statement",
+      "index": 2049
+    },
+    {
+      "kind": "statement",
+      "index": 2050
+    },
+    {
+      "kind": "statement",
+      "index": 2051
+    },
+    {
       "kind": "variables",
       "selections": [
         [
-          2066,
+          2079,
           1
         ],
         [
-          2066,
+          2079,
           14
         ],
         [
-          2066,
+          2079,
           15
         ],
         [
-          2066,
+          2079,
           17
         ],
         [
-          2066,
+          2079,
           18
         ],
         [
-          2066,
+          2079,
           19
         ],
         [
-          2066,
+          2079,
           20
         ],
         [
-          2066,
+          2079,
           21
         ],
         [
-          2066,
+          2079,
           22
         ],
         [
-          2066,
+          2079,
           23
         ]
       ]
@@ -207,14 +207,14 @@
     }
   ],
   "exports": {
-    "createBody": 33229,
-    "advance": 33365,
-    "moveY": 33323,
-    "collides": 33299,
-    "unknown": 33285,
-    "fixedStep": 33224,
-    "maxStep": 33225,
-    "CameraClass": 33959,
+    "createBody": 33311,
+    "advance": 33447,
+    "moveY": 33405,
+    "collides": 33381,
+    "unknown": 33367,
+    "fixedStep": 33306,
+    "maxStep": 33307,
+    "CameraClass": 34059,
     "worldStep": "worldStep"
   }
 }

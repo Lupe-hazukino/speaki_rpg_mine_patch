@@ -14,7 +14,7 @@
 
 ## ダウンロード
 
-[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v1.2.2)の「Assets」から、`Speaki_rpg_mine_patch-1.2.2.zip`（最新版）をダウンロードしてください。
+[ダウンロードページ](https://github.com/Lupe-hazukino/speaki_rpg_mine_patch/releases/tag/v1.2.3)の「Assets」から、`Speaki_rpg_mine_patch-1.2.3.zip`（最新版）をダウンロードしてください。
 
 対象サイトは[スピキ育成](https://speakirpg.overture.io.kr/)です。
 ゲームのアップデートにより、使用できなくなることがあります。その場合は、随時更新します。

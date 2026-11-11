@@ -9,7 +9,7 @@
       }
     },
     "condition": {
-      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CnyXd923.js|",
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CC9OTDPo.js|",
       "isUrlFilterCaseSensitive": true,
       "resourceTypes": [
         "script"
@@ -29,7 +29,7 @@
       }
     },
     "condition": {
-      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-BwwETeXW.js|",
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CnyXd923.js|",
       "isUrlFilterCaseSensitive": true,
       "resourceTypes": [
         "script"
@@ -49,7 +49,7 @@
       }
     },
     "condition": {
-      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CRU_92JX.js|",
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-BwwETeXW.js|",
       "isUrlFilterCaseSensitive": true,
       "resourceTypes": [
         "script"
@@ -69,7 +69,7 @@
       }
     },
     "condition": {
-      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DV-raoHJ.js|",
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-CRU_92JX.js|",
       "isUrlFilterCaseSensitive": true,
       "resourceTypes": [
         "script"
@@ -89,7 +89,7 @@
       }
     },
     "condition": {
-      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DSJD43y8.js|",
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DV-raoHJ.js|",
       "isUrlFilterCaseSensitive": true,
       "resourceTypes": [
         "script"
@@ -101,6 +101,26 @@
   },
   {
     "id": 6,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/client/loader.mjs"
+      }
+    },
+    "condition": {
+      "urlFilter": "|https://speakirpg.overture.io.kr/assets/index-DSJD43y8.js|",
+      "isUrlFilterCaseSensitive": true,
+      "resourceTypes": [
+        "script"
+      ],
+      "initiatorDomains": [
+        "speakirpg.overture.io.kr"
+      ]
+    }
+  },
+  {
+    "id": 7,
     "priority": 1,
     "action": {
       "type": "redirect",

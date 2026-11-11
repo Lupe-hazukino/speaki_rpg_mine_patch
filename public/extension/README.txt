@@ -1,4 +1,4 @@
-Speaki_rpg_mine_patch（スピキクラフトMOD） 1.2.2 操作ガイド
+Speaki_rpg_mine_patch（スピキクラフトMOD） 1.2.3 操作ガイド
 
 説明
 ｽﾋﾟｷMMO（ｽﾋﾟｷ育成）のゲーム内ゲーム「鉱山」で利用可能な操作改善非公式MODです。

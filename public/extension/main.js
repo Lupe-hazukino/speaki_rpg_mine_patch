@@ -34,7 +34,7 @@
   if (!resources || document.documentElement?.hasAttribute("data-mining-local-loaded")) return;
   const hotbarControls = hotbarFactory?.(resources);
   const inventory = inventoryFactory?.(resources,hotbarControls);
-  const report = {version:"1.2.2",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
+  const report = {version:"1.2.3",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
   const itemIcons=iconsFactory?.(status=>{report.itemIcons=status;publish()});
   const shopCompass=compassFactory?.();
   function publish() {
@@ -194,6 +194,7 @@
     const active = activeMineUI;
     if (!active?.root.host.isConnected || !active.root.querySelector(".mhud") || !active.root.host.getClientRects().length) return;
     const { root, state } = active;
+    if (inputControls?.nativeHudHidden) return;
     const typing = event.composedPath().some(element => element instanceof HTMLElement && (element.isContentEditable || element.matches("textarea,select,input:not([type=checkbox]):not([type=radio]):not([type=button])")));
     if (event.code === "KeyM" && !typing && !event.isComposing && !event.ctrlKey && !event.altKey && !event.metaKey) {
       event.preventDefault(); event.stopImmediatePropagation();

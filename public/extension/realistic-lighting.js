@@ -39,7 +39,7 @@ globalThis.__MINING_LOCAL_REALISM_FACTORY__=T=>{
   function update(s,owner,world,eye,camera,light,time,enabled,now,dirty){
     s.enabled.value=enabled?1:0;s.time.value=time==='morning'?0:time==='evening'?2:1;
     if(!enabled)return;
-    s.cave.value=Math.max(0,Math.min(1,Number(owner?.fogMix)||0));
+    s.cave.value=Math.max(0,Math.min(1,Number(owner?.caveMix??owner?.fogMix)||0));
     const texel=(light.shadow.camera.right-light.shadow.camera.left)/light.shadow.mapSize.x;
     s.softness.value=Math.max(.75,Math.min(3,(time==='day'?.10:.17)/texel));
     s.sunColor.value.set(...(time==='evening'?[1.40,.69,.32]:time==='morning'?[1.25,.91,.64]:[1.13,1.04,.91]));

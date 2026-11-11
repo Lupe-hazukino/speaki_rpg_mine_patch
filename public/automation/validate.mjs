@@ -35,7 +35,7 @@ fs.mkdirSync(path.join(runtime,'work/evidence/public-'+version),{recursive:true}
 fs.mkdirSync(path.join(runtime,'work/evidence/current'),{recursive:true});
 fs.writeFileSync(path.join(runtime,'work/evidence/current/current-native.mjs'),physicsFixture(source,profile,JSON.parse(fs.readFileSync(path.join(out,'research/snapshot.json')))));
 const passed=[];
-for(const test of ['verify-sneak.mjs','verify-render-settings.mjs','verify-lighting-modes.mjs','verify-current-lighting.mjs','verify-shop-compass.mjs','verify-water.mjs']){
+for(const test of ['verify-sneak.mjs','verify-render-settings.mjs','verify-lighting-modes.mjs','verify-current-lighting.mjs','verify-shop-compass.mjs','verify-water.mjs','verify-photo-mode.mjs','verify-native-interfaces.mjs']){
   const run=spawnSync(process.execPath,[path.join(runtime,'public/tools',test)],{cwd:runtime,encoding:'utf8',timeout:120000});
   if(run.status!==0)throw Error(test+' failed: '+run.stderr+' '+run.stdout);
   console.log(test+': passed');passed.push(test);

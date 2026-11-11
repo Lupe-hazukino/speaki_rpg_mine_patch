@@ -1,0 +1,120 @@
+name: Publish 1.2.3
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-1.2.3.yml
+      - releases/Speaki_rpg_mine_patch-1.2.3.zip
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-1.2.3
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Publish verified ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          GH_COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          import io
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import zipfile
+          import time
+          
+          EXPECTED = "c02395b64b7447be41d45c1cfd39830243be5699abf40b725dcb0995f3e4ff3d"
+          NAME = "Speaki_rpg_mine_patch-1.2.3.zip"
+          TAG = "v1.2.3"
+          REPO = os.environ["GH_REPO"]
+          assert REPO == "Lupe-hazukino/speaki_rpg_mine_patch"
+          COMMIT = os.environ["GH_COMMIT"]
+          TOKEN = os.environ["GH_TOKEN"]
+          BASE = "https://api.github.com/repos/" + REPO
+          
+          def request(method, url, data=None, binary=False):
+              assert urllib.parse.urlsplit(url).hostname in {"api.github.com", "uploads.github.com"}
+              headers = {
+                  "Authorization": "Bearer " + TOKEN,
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "Content-Type": "application/zip" if binary else "application/json",
+                  "User-Agent": "Speaki-rpg-mine-patch-release",
+              }
+              body = data if binary else json.dumps(data).encode() if data is not None else None
+              with urllib.request.urlopen(urllib.request.Request(url, data=body, headers=headers, method=method), timeout=60) as response:
+                  return json.load(response)
+          
+          # Publish only after the compatibility monitor validated this exact commit.
+          for attempt in range(24):
+              runs = request("GET", BASE + "/actions/runs?head_sha=" + COMMIT + "&per_page=100")["workflow_runs"]
+              monitor = next((run for run in runs if run["path"] == ".github/workflows/update-mod.yml" and run["event"] == "push"), None)
+              if monitor and monitor["status"] == "completed":
+                  assert monitor["conclusion"] == "success", "Compatibility monitor failed; no publication"
+                  jobs = request("GET", BASE + "/actions/runs/" + str(monitor["id"]) + "/jobs")["jobs"]
+                  check = next(job for job in jobs if job["name"] == "check")
+                  assert any(step["name"] == "Validate native bindings and MOD behavior" and step["conclusion"] == "success" for step in check["steps"]), "Full compatibility validation did not pass"
+                  break
+              time.sleep(10)
+          else:
+              raise RuntimeError("Compatibility monitor did not complete; no publication")
+
+          encoded = request("GET", BASE + "/contents/releases/" + NAME + "?ref=" + urllib.parse.quote(COMMIT, safe=""))
+          assert encoded["encoding"] == "base64"
+          payload = base64.b64decode(encoded["content"])
+          assert hashlib.sha256(payload).hexdigest() == EXPECTED
+          with zipfile.ZipFile(io.BytesIO(payload)) as package:
+              assert package.testzip() is None
+              assert len(package.namelist()) == 21
+              assert all(name.startswith("Speaki_rpg_mine_patch/") for name in package.namelist())
+              manifest = json.loads(package.read("Speaki_rpg_mine_patch/manifest.json"))
+              assert manifest["version"] == "1.2.3"
+              assert " 1.2.3 " in package.read("Speaki_rpg_mine_patch/README.txt").decode("utf-8").splitlines()[0]
+          
+          try:
+              release = request("GET", BASE + "/releases/tags/" + TAG)
+          except urllib.error.HTTPError as error:
+              if error.code != 404:
+                  raise
+              release = request("POST", BASE + "/releases", {
+                  "tag_name": TAG,
+                  "target_commitish": COMMIT,
+                  "name": "Speaki_rpg_mine_patch 1.2.3",
+                  "body": "",
+                  "draft": True,
+                  "prerelease": False,
+                  "generate_release_notes": False,
+              })
+          
+          asset = next((item for item in release.get("assets", []) if item["name"] == NAME), None)
+          if not release["draft"]:
+              assert asset and asset["size"] == len(payload) and asset.get("digest") == "sha256:" + EXPECTED, "An existing published v1.2.3 differs; refusing to overwrite it"
+          else:
+              if asset:
+                  assert asset["size"] == len(payload) and asset.get("digest") == "sha256:" + EXPECTED, "An existing draft asset differs; refusing to overwrite it"
+              else:
+                  upload = release["upload_url"].split("{", 1)[0]
+                  asset = request("POST", upload + "?name=" + urllib.parse.quote(NAME), payload, binary=True)
+                  assert asset["state"] == "uploaded" and asset["size"] == len(payload)
+                  assert asset.get("digest") == "sha256:" + EXPECTED
+              release = request("PATCH", BASE + "/releases/" + str(release["id"]), {
+                  "draft": False,
+                  "prerelease": False,
+                  "make_latest": "true",
+              })
+          
+          assert not release["draft"] and not release["prerelease"]
+          print(json.dumps({"release": release["html_url"], "asset": asset["name"], "sha256": EXPECTED}))
+          PY

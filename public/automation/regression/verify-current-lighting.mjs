@@ -14,7 +14,7 @@ for(const height of [100,128])for(const mode of ['shadows','realistic']){
  const scene=new T.sr(),world=new T.tt(),camera=new T.tn(70,1,.04,240),eye=new T.Lr(4,height-9,4),floor=new T.Lt(new T.g(16,1,16),new T.Rt());
  floor.position.set(8,height-12,8);world.add(floor);scene.add(world);scene.fog={near:90,far:200};
  const chunk={cx:0,cz:0,blocks:new Uint8Array(height*256),skyTop:new Int16Array(256),torchLight:new Uint8Array(height*256),torches:[]};
- const block=(x,y,z)=>(y*16+z)*16+x,roof=height-1,torch=height-8,torchIndex=block(3,torch,3),radius=height===128?16:14;
+ const block=(x,y,z)=>(y*16+z)*16+x,roof=height-1,torch=height-8,torchIndex=block(3,torch,3),radius=14;
  chunk.blocks[block(2,roof,2)]=2;chunk.skyTop[2*16+2]=height;chunk.torchLight[block(4,torch,3)]=radius-1;chunk.torches=[torchIndex];
  const hash=()=>createHash('sha256').update(chunk.blocks).update(new Uint8Array(chunk.skyTop.buffer)).update(chunk.torchLight).digest('hex'),originalHash=hash();
  let loaded=[chunk];const renderer={shadowMap:{enabled:false,type:0,autoUpdate:true,needsUpdate:false},capabilities:{maxTextureSize:1024}};
@@ -36,9 +36,12 @@ for(const height of [100,128])for(const mode of ['shadows','realistic']){
   assert.ok(shader.fragmentShader.includes('if(p.y>=realShape.y)return 1.0'));
   assert.ok(!shader.fragmentShader.includes('p.y>=100.0'));
   const version=field.version;draw();assert.equal(field.version,version);
+  owner.caveMix=.8;owner.fogMix=.1;draw();assert.equal(u.realCave.value,.8,'Current native cave mix takes precedence');
+  delete owner.caveMix;draw();assert.equal(u.realCave.value,.1,'Older reviewed clients retain fog mix fallback');
+  owner.fogMix=0;draw();
  }
  assert.equal(hash(),originalHash);
- if(height===128){owner.world.torchRadius=32;draw();assert.equal(sampleTorch(3,torch,3),32);assert.equal(u.localTorchLevel.value,32);assert.equal(hash(),originalHash);}
+ if(height===128){owner.world.torchRadius=28;draw();assert.equal(sampleTorch(3,torch,3),28);assert.equal(u.localTorchLevel.value,28);assert.equal(hash(),originalHash);}
  chunk.torchLight[block(4,torch,3)]=0;chunk.torches=[];draw();assert.equal(sampleTorch(3,torch,3),0);assert.equal(sampleTorch(4,torch,3),0);
  loaded=[];draw();assert.equal(sampleTorch(4,torch,3),0);if(mode==='realistic')assert.equal(u.realSkyField.value.image.data[0],0);
  control.dispose();assert.equal(floor.children.length,0);assert.equal(renderer.shadowMap.enabled,false);

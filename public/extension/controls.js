@@ -90,7 +90,7 @@
     }
     function startPlaceHold(source,event){
       if(event.button!==2||event.pointerType!=='mouse'||!enabled||!available()||context.isMenuOpen()||
-          hud()?.anyPanelOpen||editable(focus())||source.panelOpen||!['locked','unlocked'].includes(source.lock))return;
+          hud()?.anyPanelOpen||editable(focus())||source.panelOpen||source.hudHidden||!['locked','unlocked'].includes(source.lock))return;
       const scene=scenes.get(context.root);
       if(!scene?.active||!scene.ready||scene.riding||source.canvas?.getRootNode()!==context.root)return;
       placeHold={input:source,scene,lastAttempt:performance.now(),locked:source.lock==='locked'};publish();
@@ -98,7 +98,7 @@
     function repeatPlace(scene){
       const held=placeHold;if(!held||held.scene!==scene)return;
       if(!enabled||!available()||context.root!==scene.shadow||context.isMenuOpen()||hud()?.anyPanelOpen||
-          editable(focus())||held.input.panelOpen||!scene.active||!scene.ready||scene.riding||document.hidden){stopPlaceHold();return}
+          editable(focus())||held.input.panelOpen||held.input.hudHidden||!scene.active||!scene.ready||scene.riding||document.hidden){stopPlaceHold();return}
       if(held.input.lock!=='locked'){
         if(!held.locked&&held.input.lock==='unlocked')return;
         stopPlaceHold();return;
@@ -127,6 +127,8 @@
     function handleKey(event){
       if(event.code!=='ControlLeft'&&event.code!=='ControlRight')controlPending=null;
       if(!enabled||!available()||context.isMenuOpen())return false;
+      // The game's F9 photo mode owns the next key so it can restore its HUD.
+      if(input()?.hudHidden){controlPending=null;stopPlaceHold();return false;}
       if(chatFocused()&&(event.isComposing||event.keyCode===229)&&['Enter','NumpadEnter','Escape'].includes(event.code)){
         // Let the IME commit/cancel, but keep the native chat from sending/blurring.
         event.stopImmediatePropagation();return true;
@@ -189,7 +191,7 @@
       prepareChatFocus(element){
         if(enabled&&available()&&(context.root.host.contains(element)||context.root.contains(element)))context.root.host.setAttribute('data-mc-chat-open','');
       },
-      get enabled(){return enabled},get hudHidden(){return enabled&&hidden},
+      get enabled(){return enabled},get hudHidden(){return enabled&&hidden},get nativeHudHidden(){return !!input()?.hudHidden},
       setContext(value){
         if(context?.root!==value.root){
           stopPlaceHold();

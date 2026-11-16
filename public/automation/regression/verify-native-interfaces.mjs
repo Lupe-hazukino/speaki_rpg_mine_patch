@@ -19,4 +19,20 @@ const tile=ast.body.find(n=>n.type==='FunctionDeclaration'&&n.id.name===profile.
 assert.ok(source.slice(tile.start,tile.end).includes('===34?'),'New native item must retain its tile mapping');
 const physics=declarations.get(profile.names.pAe),input=declarations.get(profile.names.VAe),mine=declarations.get(profile.names.sLe);
 for(const [node,methods]of [[physics,['stepPhysics','setTorchRadius','rebuild']],[input,['sampleMove','onKeyDown','setHudHidden']],[mine,['frame','tryPlace','applyAnimState','applyPlayerSpawn','animationControllerOf','updateCaveMix','restoreHud']]])for(const method of methods)assert.ok(node.body.body.some(n=>n.key?.name===method),method);
-console.log(JSON.stringify({localeGetterLanguages:5,currentNativeMethods:true,newItemInNativeRegistry:true}));
+// Load native modules without downloading models or connecting to the game.
+// Export names can change while the entry point still exposes valid bindings.
+const assets=await import(new URL('research/'+profile.avatarAssets,root));
+const T=await import(new URL('research/three.core-wy5OwqqC.js',root));
+const names=profile.avatarAssetExports;
+assert.equal(assets[names.defaultExpression],'open_smile');
+const model=new T.tt(),material=new T.Gt();material.name='Face';
+const mesh=new T.Lt(new T.g(.2,.2,.2),material);model.add(mesh);
+const materials=assets[names.faceMaterials](model);assert.deepEqual(materials,[material]);
+const texture={isTexture:true},face=new assets[names.faceExpression](materials,new Map([['open_smile',texture]]));
+face.setExpression(assets[names.defaultExpression]);assert.equal(material.map,texture);
+assert.ok(assets._(model) instanceof Float32Array);
+const controller=new assets.y(new T.a(model),new Map([['idle',new T.i('idle',1,[])],['run',new T.i('run',1,[])]]),face);
+controller.update(1/60);controller.setLocomotion(true);controller.update(1/60);controller.reset();
+assert.equal(controller.sourceClips.size,2);assert.equal(controller.mixer.getRoot(),model);
+controller.mixer.stopAllAction();controller.mixer.uncacheRoot(model);mesh.geometry.dispose();material.dispose();
+console.log(JSON.stringify({localeGetterLanguages:5,currentNativeMethods:true,newItemInNativeRegistry:true,nativeAvatarFaceAndAnimation:true}));

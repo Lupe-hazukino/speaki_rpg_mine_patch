@@ -1,203 +1,203 @@
 {
-  "normalizedSHA256": "0fd1f9865c91d9d3e4fb97ff29d55e9b74fff98a4edbeaa3aa4136708219de45",
+  "normalizedSHA256": "1dd6f7b4e87197efdf06b79627873c1717d22be98d51d31d7e1c994b336139ff",
   "parts": [
     {
       "kind": "statement",
-      "index": 1927
+      "index": 2291
     },
     {
       "kind": "statement",
-      "index": 1928
+      "index": 2292
     },
     {
       "kind": "statement",
-      "index": 1929
+      "index": 2293
     },
     {
       "kind": "statement",
-      "index": 1930
+      "index": 2294
     },
     {
       "kind": "statement",
-      "index": 1931
+      "index": 2295
     },
     {
       "kind": "statement",
-      "index": 1932
+      "index": 2296
     },
     {
       "kind": "statement",
-      "index": 1933
+      "index": 2297
     },
     {
       "kind": "statement",
-      "index": 1934
+      "index": 2298
     },
     {
       "kind": "statement",
-      "index": 1935
+      "index": 2299
     },
     {
       "kind": "statement",
-      "index": 1936
+      "index": 2300
     },
     {
       "kind": "statement",
-      "index": 1937
+      "index": 2301
     },
     {
       "kind": "statement",
-      "index": 1938
+      "index": 2302
     },
     {
       "kind": "statement",
-      "index": 1939
+      "index": 2303
     },
     {
       "kind": "statement",
-      "index": 1940
+      "index": 2304
     },
     {
       "kind": "statement",
-      "index": 1941
+      "index": 2305
     },
     {
       "kind": "statement",
-      "index": 1942
+      "index": 2306
     },
     {
       "kind": "statement",
-      "index": 1943
+      "index": 2307
     },
     {
       "kind": "statement",
-      "index": 1944
+      "index": 2308
     },
     {
       "kind": "statement",
-      "index": 1945
+      "index": 2309
     },
     {
       "kind": "statement",
-      "index": 1946
+      "index": 2310
     },
     {
       "kind": "statement",
-      "index": 1947
+      "index": 2311
     },
     {
       "kind": "statement",
-      "index": 1948
+      "index": 2312
     },
     {
       "kind": "statement",
-      "index": 1949
+      "index": 2313
     },
     {
       "kind": "statement",
-      "index": 1950
+      "index": 2314
     },
     {
       "kind": "statement",
-      "index": 2037
+      "index": 2408
     },
     {
       "kind": "statement",
-      "index": 2038
+      "index": 2409
     },
     {
       "kind": "statement",
-      "index": 2039
+      "index": 2410
     },
     {
       "kind": "statement",
-      "index": 2040
+      "index": 2411
     },
     {
       "kind": "statement",
-      "index": 2041
+      "index": 2412
     },
     {
       "kind": "statement",
-      "index": 2042
+      "index": 2413
     },
     {
       "kind": "statement",
-      "index": 2043
+      "index": 2414
     },
     {
       "kind": "statement",
-      "index": 2044
+      "index": 2415
     },
     {
       "kind": "statement",
-      "index": 2045
+      "index": 2416
     },
     {
       "kind": "statement",
-      "index": 2046
+      "index": 2417
     },
     {
       "kind": "statement",
-      "index": 2047
+      "index": 2418
     },
     {
       "kind": "statement",
-      "index": 2048
+      "index": 2419
     },
     {
       "kind": "statement",
-      "index": 2049
+      "index": 2420
     },
     {
       "kind": "statement",
-      "index": 2050
+      "index": 2421
     },
     {
       "kind": "statement",
-      "index": 2051
+      "index": 2422
     },
     {
       "kind": "variables",
       "selections": [
         [
-          2079,
+          2450,
           1
         ],
         [
-          2079,
+          2450,
           14
         ],
         [
-          2079,
+          2450,
           15
         ],
         [
-          2079,
+          2450,
           17
         ],
         [
-          2079,
+          2450,
           18
         ],
         [
-          2079,
+          2450,
           19
         ],
         [
-          2079,
+          2450,
           20
         ],
         [
-          2079,
+          2450,
           21
         ],
         [
-          2079,
+          2450,
           22
         ],
         [
-          2079,
+          2450,
           23
         ]
       ]
@@ -207,14 +207,14 @@
     }
   ],
   "exports": {
-    "createBody": 33311,
-    "advance": 33447,
-    "moveY": 33405,
-    "collides": 33381,
-    "unknown": 33367,
-    "fixedStep": 33306,
-    "maxStep": 33307,
-    "CameraClass": 34059,
+    "createBody": 39120,
+    "advance": 39256,
+    "moveY": 39214,
+    "collides": 39190,
+    "unknown": 39176,
+    "fixedStep": 39115,
+    "maxStep": 39116,
+    "CameraClass": 39873,
     "worldStep": "worldStep"
   }
 }

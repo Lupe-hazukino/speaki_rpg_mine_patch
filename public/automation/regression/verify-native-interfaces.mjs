@@ -2,6 +2,10 @@
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
 import {parse} from '../../tools/vendor/acorn.mjs';import {clientProfiles} from '../extension/client/loader.mjs';
 const root=new URL('../../',import.meta.url),profile=clientProfiles[0];
+const injectedApi=parse(profile.bindings,{ecmaVersion:'latest',sourceType:'module'}).body.flatMap(n=>n.block?.body||[]).flatMap(n=>n.declarations||[]).find(n=>n.id.name==='api').init;
+const injectedField=name=>injectedApi.properties.find(n=>n.key.name===name).value;
+assert.ok(injectedField('avatarAssetsURL').value.endsWith('/'+profile.avatarAssets));
+assert.deepEqual(Object.fromEntries(injectedField('avatarAssetExports').properties.map(n=>[n.key.name,n.value.value])),profile.avatarAssetExports);
 const read=url=>fs.readFileSync(new URL('research/'+new URL(url).pathname.split('/').at(-1),root),'utf8');
 const source=read(profile.entryURL),ast=parse(source,{ecmaVersion:'latest',sourceType:'module'});
 const imports=ast.body.filter(n=>n.type==='ImportDeclaration'),localeImport=imports.find(n=>n.specifiers.some(s=>s.local.name===profile.names.Sr));

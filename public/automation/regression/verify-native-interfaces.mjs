@@ -39,4 +39,57 @@ const controller=new assets.y(new T.a(model),new Map([['idle',new T.i('idle',1,[
 controller.update(1/60);controller.setLocomotion(true);controller.update(1/60);controller.reset();
 assert.equal(controller.sourceClips.size,2);assert.equal(controller.mixer.getRoot(),model);
 controller.mixer.stopAllAction();controller.mixer.uncacheRoot(model);mesh.geometry.dispose();material.dispose();
-console.log(JSON.stringify({localeGetterLanguages:5,currentNativeMethods:true,newItemInNativeRegistry:true,nativeAvatarFaceAndAnimation:true}));
+
+// Run the MOD's normal local avatar creation path against native Three.js and animation.
+const publishedWorld=declarations.get(profile.names.q5e);
+assert.ok(publishedWorld.body.body.some(node=>node.key?.name==='localSkinInstalledCode'));
+class GameWorld{
+  localAvatarPose=new T.tt();
+  setLocalAvatar(avatar){this.localAvatar=avatar;this.localAvatarPose.add(avatar.root);}
+}
+class MiningAvatar{
+  group=new T.tt();
+  pickaxeMaterials=[];
+  constructor(){this.load();}
+  disposePlaceholder(){}
+  hideStaff(){}
+  buildSwingBones(){}
+  collectTintEntries(){}
+  syncAnimState(){}
+  attachPickaxe(root){this.pickaxe=new T.tt();root.getObjectByName('RightHand').add(this.pickaxe);}
+  dispose(){this.current.dispose();}
+}
+await import('../extension/mining-avatar.js');
+globalThis.__MINING_LOCAL_BIND_AVATAR__({
+  GameWorldClass:GameWorld,AvatarClass:MiningAvatar,PickaxeKit:class{dispose(){}},
+  avatarAssetsURL:new URL('research/'+profile.avatarAssets,root).href,avatarAssetExports:names,
+  cloneAvatar:source=>({root:source.clone(true),dispose(){}}),
+});
+const avatars=globalThis.__MINING_LOCAL_AVATAR_FACTORY__(T);await avatars.ready;
+for(const skinCode of ['SKIN_SPEAKI_MAID','SKIN_SPEAKI_PUREPUMPKIN']){
+  const owner=new GameWorld(),original=new T.tt(),hand=new T.m(),attachment=new T.tt();
+  hand.name='RightHand';attachment.name='SkinTool';attachment.userData.tunableWeapon=true;
+  const body=new T.Lt(new T.g(.6,1.5,.4),new T.Rt());body.name='Body';
+  hand.add(attachment);original.add(body,hand);original.userData.skinAvatarRoot=true;
+  const idle=new T.i('idle',1,[]),heldRun=new T.i('heldRun',1,[]),freeRun=new T.i('freeRun',1,[]);
+  const sourceClips=new Map([['idle',idle],['run',heldRun]]);
+  const animationController=new assets.y(new T.a(original),sourceClips,null,null,{fallbackRun:freeRun,handWeapons:[attachment]});
+  owner.localSkinInstalledCode=skinCode;owner.setLocalAvatar({root:original,animationController});
+  const isMaid=skinCode==='SKIN_SPEAKI_MAID';
+  const copies=[avatars.create(),avatars.create()];
+  for(const {avatar} of copies){
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.ok(avatar.current,'Mining display must load');
+    assert.equal(avatar.current.root.getObjectByName('SkinTool').visible,!isMaid);
+    assert.equal(avatar.current.root.getObjectByName('Body').visible,true);
+    assert.equal(avatar.pickaxe.visible,true);
+    const animation=avatar.current.animationController;animation.setLocomotion(true);avatar.current.update(1/60);
+    assert.equal(animation.activeAction.getClip(),isMaid?freeRun:heldRun);
+    assert.equal(avatar.current.root.getObjectByName('SkinTool').visible,!isMaid);
+  }
+  assert.equal(attachment.visible,true);assert.equal(sourceClips.get('run'),heldRun);
+  for(const copy of copies)copy.dispose();
+  animationController.mixer.stopAllAction();animationController.mixer.uncacheRoot(original);
+  body.geometry.dispose();body.material.dispose();
+}
+console.log(JSON.stringify({localeGetterLanguages:5,currentNativeMethods:true,newItemInNativeRegistry:true,nativeAvatarFaceAndAnimation:true,maidVacuumHiddenInMining:true}));

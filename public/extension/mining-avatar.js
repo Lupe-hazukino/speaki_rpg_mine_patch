@@ -86,10 +86,23 @@
       const {root:sourceRoot,source,controller}=selected;
       const instance=api.cloneAvatar(source,{faceIsolation:{enabled:true,restPositions:assets._(source)}});
       const model=instance.root,mixer=controller?new module.a(model):null,faceMaterials=assets.D(model);
+      const isMaid=sourceRoot===ownWorld?.localAvatar?.root&&ownWorld.localSkinInstalledCode==='SKIN_SPEAKI_MAID';
+      let clips=controller?.sourceClips;
+      if(isMaid){
+        // The skin adds its vacuum as a separate hand attachment. Hide it on the mining copy.
+        model.traverse(object=>{
+          if(object.userData.tunableWeapon===true)object.visible=false;
+        });
+        const runWithoutVacuum=controller?.weaponRunFallback?.fallbackRun;
+        if(runWithoutVacuum){
+          clips=new Map(clips);
+          clips.set('run',runWithoutVacuum);
+        }
+      }
       const textures=controller?.faceExpression?.textures;
       const face=textures&&faceMaterials.length?new assets.T(faceMaterials,textures):null;
       face?.setExpression(assets.w);
-      const animation=controller?new assets.y(mixer,controller.sourceClips,face):null,root=new module.tt(),visual=new module.tt();
+      const animation=controller?new assets.y(mixer,clips,face):null,root=new module.tt(),visual=new module.tt();
       visual.add(model);root.add(visual);
       if(sourceRoot.userData.skinAvatarRoot)root.userData.skinAvatarRoot=true;
       return {root,animationController:animation,faceExpression:face,update:dt=>animation?.update(dt),dispose:()=>{mixer?.stopAllAction();mixer?.uncacheRoot(model);instance.dispose()}};

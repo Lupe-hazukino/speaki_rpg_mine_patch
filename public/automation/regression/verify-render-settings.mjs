@@ -34,9 +34,9 @@ vm.runInContext(exposed,context);const controllers=context.uiTest.init(T);
 const hud=new Element();hud.className='mhud';const mineRoot=new Element();mineRoot.host=new Element();mineRoot.append(hud);const ui=context.uiTest.mount(mineRoot);
 assert.equal(ui.dialog.children[0].textContent,'スピキクラフトMOD 設定');
 assert.equal(ui.shadowCheckbox.checked,false);assert.equal(controllers.shadows.enabled,false);
-assert.equal(ui.paperDollCheckbox.checked,false);assert.equal(controllers.paperDoll.enabled,false);
-ui.paperDollCheckbox.checked=true;ui.paperDollCheckbox.emit('change');assert.equal(controllers.paperDoll.enabled,true);
+assert.equal(ui.paperDollCheckbox.checked,true);assert.equal(controllers.paperDoll.enabled,true);
 ui.paperDollCheckbox.checked=false;ui.paperDollCheckbox.emit('change');assert.equal(controllers.paperDoll.enabled,false);
+ui.paperDollCheckbox.checked=true;ui.paperDollCheckbox.emit('change');assert.equal(controllers.paperDoll.enabled,true);
 assert.equal(ui.sunRadios.find(radio=>radio.checked).value,'day');assert.equal(ui.rangeRadios.find(radio=>radio.checked).value,'ultra');
 assert.equal(ui.distanceFieldset,undefined);assert.equal(ui.distanceRadios,undefined);assert.equal(ui.distanceInfo,undefined);
 assert.deepEqual(ui.shadowSection.children.filter(child=>child.tagName==='FIELDSET'),[ui.sunFieldset,ui.rangeFieldset]);
@@ -94,6 +94,6 @@ for(const [code,labels] of Object.entries(expected)){
 ui.shadowCheckbox.checked=false;ui.shadowCheckbox.emit('change');assert.equal(ui.rangeFieldset.disabled,true);assert.equal(ui.sunFieldset.disabled,true);
 window.emit('keydown',f2);assert.equal(ui.overlay.hidden,true);
 const report={version:manifest.version,controlsAndF2TextPreserved:true,languagesChecked:5,renderDistanceUIAndDiagnosticsRemoved:true,renderDistanceRuntimeNotLoaded:true,
- paperDollDefaultOff:true,paperDollCheckboxWorks:true,paperDollFiveLanguages:true,shadowDefaultOff:true,timeDefaultNoon:true,shadowRangeDefaultUltra:true,independentShadowRangePreserved:true,dialogHasNoRemovedFieldsetOrSpacer:true,
+ paperDollDefaultOn:true,paperDollCheckboxWorks:true,paperDollFiveLanguages:true,shadowDefaultOff:true,timeDefaultNoon:true,shadowRangeDefaultUltra:true,independentShadowRangePreserved:true,dialogHasNoRemovedFieldsetOrSpacer:true,
  mutuallyExclusiveLightingModes:true,otherCheckboxDisabled:true,disabledChangeEventsRejected:true,separateModeFrames:true,realismLocksDayAndUltra:true,previousShadowChoicesRestored:true,noDuplicateSettings:true};
 fs.writeFileSync(new URL('render-settings.json',evidence),JSON.stringify(report,null,2));console.log(JSON.stringify(report));

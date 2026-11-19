@@ -1,7 +1,7 @@
 /* Local HUD portrait, rendered with the existing game renderer and loaded skin. */
 globalThis.__MINING_LOCAL_PAPER_DOLL_FACTORY__=(T,avatars,onStatus)=>{
   'use strict';
-  const states=new Map(),boundClasses=new WeakSet();let enabled=false,drawing=false,lastReport='';
+  const states=new Map(),boundClasses=new WeakSet();let enabled=true,drawing=false,lastReport='';
   const report=()=>{const active=states.size>0,key=enabled+'|'+active;if(key!==lastReport){lastReport=key;onStatus?.({enabled,active})}};
   function dispose(state){
     state.material?.removeEventListener('dispose',state.cleanup);

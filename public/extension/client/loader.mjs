@@ -108,7 +108,7 @@ export async function prepareClient(source,requestedURL=entryURL,lookup){
   let profile=clientProfiles.find(value=>value.hash===hash&&value.entryURL===requestedURL);
   if(!profile&&lookup)profile=profileFromMetadata(await lookup(requestedURL,hash),requestedURL,hash);
   let imports=0;
-  let code=source.replace(/(\bfrom\s*|\bimport\(\s*)(["'`])(\.[^"'`]+)\2/g,(_,prefix,quote,path)=>{
+  let code=source.replace(/(\bfrom\s*|\bimport\s*(?:\(\s*)?)(["'`])(\.[^"'`]+)\2/g,(_,prefix,quote,path)=>{
     imports++;return prefix+quote+new URL(path,requestedURL).href+quote;
   });
   if(profile){
@@ -128,7 +128,15 @@ async function boot(){
   const response=await fetch(requested,{credentials:'same-origin',cache:'no-cache'});
   if(!response.ok)throw Error(localText('clientFetchFailed','Could not fetch the game client: '+response.status,{status:response.status}));
   const prepared=await prepareClient(await response.text(),requested,lookupMetadata);
-  if(!prepared.reviewed)console.warn('['+localText('modName','Speaki_rpg_mine_patch')+'] '+localText('clientUpdated','Game updated. Starting without the MOD.'));
+  if(!prepared.reviewed){
+    console.warn('['+localText('modName','Speaki_rpg_mine_patch')+'] '+localText('clientUpdated','Game updated. Starting without the MOD.'));
+    // The exact DNR pattern excludes query strings. Let the browser resolve
+    // the unmodified module's imports and import.meta from the game's origin.
+    const original=new URL(requested);
+    original.searchParams.set('speaki_mine_mod','off');
+    await import(original.href);
+    return;
+  }
   const url=URL.createObjectURL(new Blob([prepared.code],{type:'text/javascript'}));
   try {await import(url)} finally {URL.revokeObjectURL(url)}
 }

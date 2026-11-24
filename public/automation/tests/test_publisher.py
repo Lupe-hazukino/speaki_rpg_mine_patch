@@ -125,5 +125,31 @@ class PublisherTests(unittest.TestCase):
         self.assertNotIn('ゲーム側の変更を検知しました', body)
         self.assertNotIn('メイン処理の構造変更', body)
 
+    def test_record_publication_only_adds_the_record(self):
+        class RecordAPI(MockAPI):
+            def request(self, method, endpoint, data=None, binary=False):
+                self.calls.append((method, endpoint, data))
+                return {
+                    '/git/commits/base': {'tree': {'sha': 'tree'}},
+                    '/git/blobs': {'sha': 'blob'},
+                    '/git/trees': {'sha': 'next-tree'},
+                    '/git/commits': {'sha': 'next-commit'},
+                }.get(endpoint)
+        name = 'compatibility/v1/' + 'a'*64 + '/index-next.js.json'
+        api = RecordAPI()
+        publisher.publish_record(api, name, b'{}', 'base')
+        self.assertEqual(api.calls[0], ('GET', '/contents/'+name+'?ref=base', None))
+        self.assertEqual(api.calls[3][2]['tree'], [{'path': name, 'mode':'100644', 'type':'blob', 'sha':'blob'}])
+        self.assertEqual(api.calls[-1], ('PATCH', '/git/refs/heads/main', {'sha':'next-commit', 'force':False}))
+        self.assertFalse(any('/releases' in endpoint for _, endpoint, _ in api.calls))
+
+    def test_existing_record_is_immutable(self):
+        name = 'compatibility/v1/' + 'a'*64 + '/index-next.js.json'
+        api = MockAPI(release={'encoding':'base64', 'content':'e30='})
+        publisher.publish_record(api, name, b'{}', 'base')
+        with self.assertRaises(AssertionError):
+            publisher.publish_record(api, name, b'{"other":true}', 'base')
+        self.assertEqual([method for method, _, _ in api.calls], ['GET','GET'])
+
 if __name__ == '__main__':
     unittest.main()

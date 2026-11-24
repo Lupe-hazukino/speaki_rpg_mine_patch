@@ -59,7 +59,9 @@ export function makeCandidate(repo,out,before,after,profile){
   const loader=path.join(destination,'client/loader.mjs'),updated=updateLoader(fs.readFileSync(loader,'utf8'),profile,before,after);
   fs.writeFileSync(loader,updated.source);
   const rulesFile=path.join(destination,'rules.json'),rules=JSON.parse(fs.readFileSync(rulesFile));
-  if(!rules.some(rule=>rule.condition.urlFilter==='|'+after.entryURL+'|'))rules.unshift({...rules[0],condition:{...rules[0].condition,urlFilter:'|'+after.entryURL+'|'}});
+  if(!rules.some(rule=>rule.condition.urlFilter==='|'+after.entryURL+'|'||
+    rule.condition.regexFilter&&new RegExp(rule.condition.regexFilter).test(after.entryURL)))
+    rules.unshift({...rules[0],condition:{...rules[0].condition,urlFilter:'|'+after.entryURL+'|'}});
   rules.forEach((rule,i)=>rule.id=i+1);fs.writeFileSync(rulesFile,JSON.stringify(rules,null,2));
   fs.mkdirSync(path.join(out,'public/automation'),{recursive:true});
   const baseline={schema:1,reviewedVersion:version,...after};fs.writeFileSync(path.join(out,'public/automation/baseline.json'),JSON.stringify(baseline,null,2)+'\n');

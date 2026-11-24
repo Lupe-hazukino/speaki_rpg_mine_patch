@@ -71,15 +71,12 @@ jobs:
         run: |
           node public/automation/validate.mjs
           node public/automation/selftest-client.mjs
-      - name: Build verified public ZIP
-        if: steps.detect.outputs.status == 'candidate'
-        run: python3 public/automation/package.py
       - name: Finalize report
         if: always()
         env:
           CHECK_OUTCOME: ${{ job.status }}
         run: python3 public/automation/finish-report.py
-      - name: Save report and candidate (never upstream game files)
+      - name: Save verification report and compatibility record
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -87,7 +84,7 @@ jobs:
           path: |
             public/automation/out/report.json
             public/automation/out/validation.json
-            public/automation/out/candidate/
+            public/automation/out/compatibility.json
           retention-days: 7
           if-no-files-found: error
 

@@ -1,203 +1,259 @@
 {
-  "normalizedSHA256": "caa6e28ccca8a41c072f5f04d81bc9b8c8a595a4a1e6be64d215dbdce10760f8",
+  "normalizedSHA256": "02d19e213905d10bf6f9de6018d7f969b266faf7fc699d481d5a054917015fd7",
   "parts": [
     {
       "kind": "statement",
-      "index": 2384
+      "index": 2588
     },
     {
       "kind": "statement",
-      "index": 2385
+      "index": 2589
     },
     {
       "kind": "statement",
-      "index": 2386
+      "index": 2590
     },
     {
       "kind": "statement",
-      "index": 2387
+      "index": 2591
     },
     {
       "kind": "statement",
-      "index": 2388
+      "index": 2592
     },
     {
       "kind": "statement",
-      "index": 2389
+      "index": 2593
     },
     {
       "kind": "statement",
-      "index": 2390
+      "index": 2594
     },
     {
       "kind": "statement",
-      "index": 2391
+      "index": 2595
     },
     {
       "kind": "statement",
-      "index": 2392
+      "index": 2596
     },
     {
       "kind": "statement",
-      "index": 2393
+      "index": 2597
     },
     {
       "kind": "statement",
-      "index": 2394
+      "index": 2598
     },
     {
       "kind": "statement",
-      "index": 2395
+      "index": 2599
     },
     {
       "kind": "statement",
-      "index": 2396
+      "index": 2614
     },
     {
       "kind": "statement",
-      "index": 2397
+      "index": 2615
     },
     {
       "kind": "statement",
-      "index": 2398
+      "index": 2616
     },
     {
       "kind": "statement",
-      "index": 2399
+      "index": 2617
     },
     {
       "kind": "statement",
-      "index": 2400
+      "index": 2618
     },
     {
       "kind": "statement",
-      "index": 2401
+      "index": 2619
     },
     {
       "kind": "statement",
-      "index": 2402
+      "index": 2620
     },
     {
       "kind": "statement",
-      "index": 2403
+      "index": 2621
     },
     {
       "kind": "statement",
-      "index": 2404
+      "index": 2622
     },
     {
       "kind": "statement",
-      "index": 2405
+      "index": 2623
     },
     {
       "kind": "statement",
-      "index": 2406
+      "index": 2624
     },
     {
       "kind": "statement",
-      "index": 2407
+      "index": 2625
     },
     {
       "kind": "statement",
-      "index": 2501
+      "index": 2626
     },
     {
       "kind": "statement",
-      "index": 2502
+      "index": 2627
     },
     {
       "kind": "statement",
-      "index": 2503
+      "index": 2733
     },
     {
       "kind": "statement",
-      "index": 2504
+      "index": 2734
     },
     {
       "kind": "statement",
-      "index": 2505
+      "index": 2735
     },
     {
       "kind": "statement",
-      "index": 2506
+      "index": 2736
     },
     {
       "kind": "statement",
-      "index": 2507
+      "index": 2737
     },
     {
       "kind": "statement",
-      "index": 2508
+      "index": 2738
     },
     {
       "kind": "statement",
-      "index": 2509
+      "index": 2739
     },
     {
       "kind": "statement",
-      "index": 2510
+      "index": 2740
     },
     {
       "kind": "statement",
-      "index": 2511
+      "index": 2741
     },
     {
       "kind": "statement",
-      "index": 2512
+      "index": 2742
     },
     {
       "kind": "statement",
-      "index": 2513
+      "index": 2743
     },
     {
       "kind": "statement",
-      "index": 2514
+      "index": 2744
     },
     {
       "kind": "statement",
-      "index": 2515
+      "index": 2745
+    },
+    {
+      "kind": "statement",
+      "index": 2746
+    },
+    {
+      "kind": "statement",
+      "index": 2747
+    },
+    {
+      "kind": "statement",
+      "index": 2748
+    },
+    {
+      "kind": "statement",
+      "index": 2749
+    },
+    {
+      "kind": "statement",
+      "index": 2750
+    },
+    {
+      "kind": "statement",
+      "index": 2751
+    },
+    {
+      "kind": "statement",
+      "index": 2752
+    },
+    {
+      "kind": "statement",
+      "index": 2753
+    },
+    {
+      "kind": "statement",
+      "index": 2754
+    },
+    {
+      "kind": "statement",
+      "index": 2755
+    },
+    {
+      "kind": "statement",
+      "index": 2756
+    },
+    {
+      "kind": "statement",
+      "index": 2757
+    },
+    {
+      "kind": "statement",
+      "index": 2758
+    },
+    {
+      "kind": "statement",
+      "index": 2759
     },
     {
       "kind": "variables",
       "selections": [
         [
-          2549,
+          2793,
           1
         ],
         [
-          2549,
+          2793,
           14
         ],
         [
-          2549,
+          2793,
           15
         ],
         [
-          2549,
+          2793,
           17
         ],
         [
-          2549,
+          2793,
           18
         ],
         [
-          2549,
+          2793,
           19
         ],
         [
-          2549,
+          2793,
           20
         ],
         [
-          2549,
+          2793,
           21
         ],
         [
-          2549,
+          2793,
           22
         ],
         [
-          2549,
+          2793,
           23
         ]
       ]
@@ -207,14 +263,14 @@
     }
   ],
   "exports": {
-    "createBody": 40362,
-    "advance": 40498,
-    "moveY": 40456,
-    "collides": 40432,
-    "unknown": 40418,
-    "fixedStep": 40357,
-    "maxStep": 40358,
-    "CameraClass": 41181,
+    "createBody": 44103,
+    "advance": 44340,
+    "moveY": 44292,
+    "collides": 44268,
+    "unknown": 44254,
+    "fixedStep": 44089,
+    "maxStep": 44090,
+    "CameraClass": 45042,
     "worldStep": "worldStep"
   }
 }

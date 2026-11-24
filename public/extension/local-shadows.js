@@ -604,5 +604,6 @@ globalThis.__MINING_LOCAL_SHADOWS_FACTORY__=(T,onStatus,options)=>{
   }
   function cleanup(){stop();water?.dispose()}
   if(typeof window!=='undefined')window.addEventListener('pagehide',cleanup);
-  report();return {get enabled(){return enabled},get rendering(){return rendering()},get timeOfDay(){return timeOfDay},get range(){return range},get realistic(){return realistic},setRealistic,setEnabled,setTimeOfDay,setRange,bindSceneClass,beforeWorld,dispose:cleanup};
+  report();return {get enabled(){return enabled},get rendering(){return rendering()},get timeOfDay(){return timeOfDay},get range(){return range},get realistic(){return realistic},setRealistic,setEnabled,setTimeOfDay,setRange,bindSceneClass,beforeWorld,dispose:cleanup,
+    isClimbing:scene=>!!sceneOwners.get(scene)?.body?.climbing};
 };

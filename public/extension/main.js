@@ -34,7 +34,7 @@
   if (!resources || document.documentElement?.hasAttribute("data-mining-local-loaded")) return;
   const hotbarControls = hotbarFactory?.(resources);
   const inventory = inventoryFactory?.(resources,hotbarControls);
-  const report = {version:"1.2.7",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
+  const report = {version:"1.2.8",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
   const itemIcons=iconsFactory?.(status=>{report.itemIcons=status;publish()});
   const shopCompass=compassFactory?.();
   function publish() {
@@ -309,7 +309,8 @@
         const world = this.children.find(o => o.name === "voxelWorld");
         if (world) {
           if(itemIcons?.capture(world)){itemIcons.update(root);inventory?.update(root)}
-          sneak?.setContext({root,worldGroup:world,camera,getPerspective:()=>perspective,isMenuOpen:()=>ui.settingsOpen});
+          sneak?.setContext({root,worldGroup:world,camera,getPerspective:()=>perspective,isMenuOpen:()=>ui.settingsOpen,
+            isClimbing:()=>localShadows?.isClimbing(this)});
           // Keep the native eye as the shadow range/light anchor; inspect the
           // avatar only after this draw's position, animation and visibility.
           if(localShadows?.rendering)shadowEye.copy(camera.position);

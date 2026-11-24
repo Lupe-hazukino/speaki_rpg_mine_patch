@@ -79,7 +79,7 @@
         ![api.advance, api.moveY, api.collides, api.unknown].every(fn => typeof fn === "function")) return;
     native = api;
     api.WorldClass.prototype.stepPhysics = function(body, input, dt) {
-      const engaged = active() && this.group === context.worldGroup;
+      const engaged = active() && this.group === context.worldGroup && !body.climbing;
       status.active = engaged;
       status.speedMultiplier=engaged?sneakSpeed:1;
       const slowed=engaged?{...input,moveVx:input.moveVx*sneakSpeed,moveVz:input.moveVz*sneakSpeed}:input;
@@ -88,7 +88,7 @@
     };
     api.CameraClass.prototype.update = function() {
       const result = cameraUpdate.apply(this, arguments);
-      const drop = active() && this.camera === context.camera && context.getPerspective() === 0 && !this.seated ? .35 : 0;
+      const drop = active() && this.camera === context.camera && context.getPerspective() === 0 && !this.seated && !context.isClimbing?.() ? .35 : 0;
       this.camera.position.y -= drop;
       status.eyeDrop = drop; publish(); return result;
     };

@@ -57,7 +57,8 @@ def verify_candidate(root, candidate, report):
             assert files[name] == (root / name).read_bytes(), name
     old_rules = json.loads((root / 'public/extension/rules.json').read_text('utf8'))
     rules = json.loads(files['public/extension/rules.json'])
-    if not any(r['condition']['urlFilter'] == '|' + next_base['entryURL'] + '|' for r in old_rules):
+    if not any(r['condition'].get('urlFilter') == '|' + next_base['entryURL'] + '|' or
+               re.fullmatch(r['condition'].get('regexFilter', r'(?!)'), next_base['entryURL']) for r in old_rules):
         old_rules.insert(0, {**old_rules[0], 'condition': {**old_rules[0]['condition'], 'urlFilter': '|' + next_base['entryURL'] + '|'}})
     assert rules == [{**rule, 'id': i+1} for i, rule in enumerate(old_rules)]
     state = json.loads(files['public/automation/release-state.json'])
@@ -122,6 +123,43 @@ def report_review(api, report):
     api.request('POST', '/issues', {'title': '[鉱山MOD] 対応要否の確認が必要 '+key, 'body': body,
                                   'assignees': ['Lupe-hazukino']})
 
+def verify_record(root, out, report):
+    assert report['status'] == 'compatibility' and report.get('validated') is True
+    baseline = json.loads((root / 'public/automation/baseline.json').read_text('utf8'))
+    assert report['baseHash'] == baseline['entrySHA256'] and report['baseVersion'] == baseline['reviewedVersion']
+    data = (out / 'compatibility.json').read_bytes()
+    assert len(data) <= 8192 and sha(data) == report['recordSHA256']
+    record = json.loads(data)
+    assert set(record) == {'schema', 'entryURL', 'hash', 'imports', 'symbols'} and record['schema'] == 1
+    assert record['entryURL'] == report['entryURL'] and record['hash'] == report['entryHash']
+    assert re.fullmatch(r'[0-9a-f]{64}', record['hash'])
+    match = re.fullmatch(r'https://speakirpg\.overture\.io\.kr/assets/(index-[A-Za-z0-9_-]+\.js)', record['entryURL'])
+    assert match
+    validation = json.loads((out / 'validation.json').read_text('utf8'))
+    assert validation['version'] == baseline['reviewedVersion'] and validation['entry'] == record['entryURL']
+    assert validation['entrySHA256'] == record['hash'] and validation['profileBindingsResolve'] is True
+    assert validation['unknownHashFallback'] is True and len(validation['regressions']) == 9
+    loader = (root / 'public/extension/client/loader.mjs').read_text('utf8')
+    roles = json.loads(re.search(r'^const compatibilitySymbols=(\[.*?\]);$', loader, re.M)[1])
+    assert set(record['symbols']) == set(roles)
+    symbols = list(record['symbols'].values())
+    assert len(set(symbols)) == len(roles) and all(re.fullmatch(r'[$A-Z_a-z][$A-Z_a-z0-9]{0,79}', name) for name in symbols)
+    assert type(record['imports']) is int and 1 <= record['imports'] <= 100
+    return f"compatibility/v1/{record['hash']}/{match[1]}.json", data
+
+def publish_record(api, name, data, head):
+    existing = api.request('GET', '/contents/'+name+'?ref='+head)
+    if existing:
+        assert existing['encoding'] == 'base64' and base64.b64decode(existing['content']) == data, 'A published record differs; manual review required'
+        return
+    base_tree = api.request('GET', '/git/commits/'+head)['tree']['sha']
+    blob = api.request('POST', '/git/blobs', {'encoding':'base64','content':base64.b64encode(data).decode()})
+    elements = [{'path': name, 'mode':'100644','type':'blob','sha':blob['sha']}]
+    tree = api.request('POST','/git/trees',{'base_tree':base_tree,'tree':elements})['sha']
+    commit = api.request('POST','/git/commits',{'message':'Register MOD compatibility for '+name.split('/')[-1][:-5], 'tree':tree,'parents':[head]})['sha']
+    # A concurrent commit makes this non-fast-forward and GitHub rejects it.
+    api.request('PATCH','/git/refs/heads/main',{'sha':commit,'force':False})
+
 def main():
     assert os.environ.get('GITHUB_REF') == 'refs/heads/main'
     api = GitHub()
@@ -136,26 +174,13 @@ def main():
     assert re.fullmatch(r'[0-9a-f]{40}', expected)
     head = api.request('GET', '/git/ref/heads/main')['object']['sha']
     assert head == expected, 'main changed during validation; retry against the new commit'
-    if report['status'] == 'candidate':
-        changes, state, payload = verify_candidate(ROOT, OUT / 'candidate', report)
-        assert api.request('GET', '/releases/tags/v'+state['version']) is None, 'Version already exists; refusing overwrite'
-        assert api.request('GET', '/git/ref/tags/v'+state['version']) is None, 'Tag already exists; refusing overwrite'
-        tree = api.request('GET', '/git/commits/'+head)['tree']['sha']
-        elements = []
-        for name, data in sorted(changes.items()):
-            blob = api.request('POST', '/git/blobs', {'encoding':'base64','content':base64.b64encode(data).decode()})
-            elements.append({'path': name, 'mode':'100644','type':'blob','sha':blob['sha']})
-        tree = api.request('POST','/git/trees',{'base_tree':tree,'tree':elements})['sha']
-        commit = api.request('POST','/git/commits',{'message':'Update compatibility to '+state['version'],'tree':tree,'parents':[head]})['sha']
-        # A concurrent commit makes this non-fast-forward and GitHub rejects it.
-        api.request('PATCH','/git/refs/heads/main',{'sha':commit,'force':False})
+    if report['status'] == 'compatibility':
+        name, data = verify_record(ROOT, OUT, report)
+        publish_record(api, name, data, head)
+        print('Compatibility record available: '+name)
     else:
-        assert report['status']=='unchanged'
-        commit = head
-        state = json.loads((ROOT / 'public/automation/release-state.json').read_text('utf8'))
-        assert state['version'] == json.loads((ROOT / 'public/automation/baseline.json').read_text('utf8'))['reviewedVersion']
-        payload = (ROOT / 'releases' / state['asset']).read_bytes()
-    print(publish_release(api, state, payload, commit))
+        assert report['status'] in {'unchanged', 'registered'}
+        print('No compatibility record to publish')
 
 if __name__ == '__main__':
     main()

@@ -9,8 +9,8 @@ import {analyze as scopes} from 'eslint-scope';
 import {physicsFixture} from './physics.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),out=process.env.SPEAKI_AUTOMATION_OUT||path.join(root,'public/automation/out');
 const report=JSON.parse(fs.readFileSync(path.join(out,'report.json')));
-assert.ok(report.status==='candidate'||report.status==='unchanged'&&report.scope==='full');
-const extension=path.join(report.status==='candidate'?path.join(out,'candidate'):root,'public/extension');
+assert.ok(['compatibility','unchanged'].includes(report.status)&&report.scope==='full');
+const extension=path.join(root,'public/extension');
 const runtime=path.join(out,'runtime');fs.mkdirSync(path.join(runtime,'public'),{recursive:true});
 fs.cpSync(extension,path.join(runtime,'public/extension'),{recursive:true});
 fs.cpSync(path.join(root,'public/src'),path.join(runtime,'public/src'),{recursive:true});
@@ -18,17 +18,27 @@ fs.cpSync(path.join(out,'research'),path.join(runtime,'research'),{recursive:tru
 fs.cpSync(path.join(root,'public/automation/regression'),path.join(runtime,'public/tools'),{recursive:true});
 fs.mkdirSync(path.join(runtime,'tools/vendor'),{recursive:true});
 fs.writeFileSync(path.join(runtime,'tools/vendor/acorn.mjs'),'export {parse} from '+JSON.stringify(pathToFileURL(path.join(root,'public/automation/node_modules/acorn/dist/acorn.mjs')).href)+';');
-const {clientProfiles,prepareClient}=await import(pathToFileURL(path.join(extension,'client/loader.mjs'))),profile=clientProfiles[0];
+const {clientProfiles,prepareClient,profileFromMetadata}=await import(pathToFileURL(path.join(extension,'client/loader.mjs')));
+let profile=clientProfiles[0],lookup;
+if(report.status==='compatibility'){
+  const encoded=fs.readFileSync(path.join(out,'compatibility.json'));
+  assert.equal(sha(encoded),report.recordSHA256);
+  const record=JSON.parse(encoded);
+  profile=profileFromMetadata(record,report.entryURL,report.entryHash);
+  assert.ok(profile);
+  lookup=()=>record;
+}
 const source=fs.readFileSync(path.join(out,'research',new URL(profile.entryURL).pathname.split('/').at(-1)),'utf8');
 assert.equal(sha(source),profile.hash);
-const prepared=await prepareClient(source,profile.entryURL);assert.equal(prepared.profile,'current');parseJS(prepared.code);
+const prepared=await prepareClient(source,profile.entryURL,lookup);assert.equal(prepared.profile,profile.id);parseJS(prepared.code);
 assert.equal(source.split(profile.boot).length,2);
-const fallback=await prepareClient(source+'\n// unreviewed bytes',profile.entryURL);assert.equal(fallback.reviewed,false);assert.ok(!fallback.code.includes(profile.bindings));
+const fallback=await prepareClient(source+'\n// unreviewed bytes',profile.entryURL,lookup);assert.equal(fallback.reviewed,false);assert.ok(!fallback.code.includes(profile.bindings));
 const originalScopes=scopes(parseJS(source),{ecmaVersion:2025,sourceType:'module'}),top=originalScopes.scopes.find(s=>s.type==='module');
 const locals=new Set(top.variables.map(v=>v.name)),injected=scopes(parseJS(profile.bindings),{ecmaVersion:2025,sourceType:'module'});
 for(const ref of injected.globalScope.through)assert.ok(locals.has(ref.identifier.name)||['globalThis','console'].includes(ref.identifier.name),'Unresolved injected binding '+ref.identifier.name);
 const rules=JSON.parse(fs.readFileSync(path.join(extension,'rules.json')));
-for(const item of clientProfiles)assert.ok(rules.some(r=>r.condition.urlFilter==='|'+item.entryURL+'|'&&r.action.redirect.extensionPath==='/client/loader.mjs'));
+for(const item of [profile,...clientProfiles])assert.ok(rules.some(r=>(r.condition.urlFilter==='|'+item.entryURL+'|'||
+  r.condition.regexFilter&&new RegExp(r.condition.regexFilter).test(item.entryURL))&&r.action.redirect.extensionPath==='/client/loader.mjs'));
 for(const script of fs.readdirSync(extension).filter(n=>n.endsWith('.js')))parseJS(fs.readFileSync(path.join(extension,script),'utf8'));
 const version=JSON.parse(fs.readFileSync(path.join(extension,'manifest.json'))).version;
 fs.mkdirSync(path.join(runtime,'work/evidence/public-'+version),{recursive:true});
@@ -41,3 +51,4 @@ for(const test of ['verify-sneak.mjs','verify-render-settings.mjs','verify-light
   console.log(test+': passed');passed.push(test);
 }
 fs.writeFileSync(path.join(out,'validation.json'),JSON.stringify({version,entry:profile.entryURL,entrySHA256:profile.hash,profileBindingsResolve:true,unknownHashFallback:true,regressions:passed,liveGameLogin:false},null,2)+'\n');
+if(report.status==='compatibility')fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({...report,validated:true},null,2)+'\n');

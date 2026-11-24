@@ -1,14 +1,20 @@
 // An artificial update exercises the real candidate path without publishing it.
 import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';
-import {fileURLToPath,pathToFileURL} from 'node:url';import {spawnSync} from 'node:child_process';
-import {analyzeEntry,fingerprint,equivalent} from './analyze.mjs';
-import {makeCandidate,replaceNodes} from './prepare.mjs';
+import {fileURLToPath} from 'node:url';import {spawnSync} from 'node:child_process';
+import {analyzeEntry,fingerprint,equivalent,sha} from './analyze.mjs';
+import {replaceNodes} from './prepare.mjs';
+import {compatibilityRecord} from './metadata.mjs';
+import {clientProfiles,prepareClient,profileFromMetadata,selectEntry} from '../extension/client/loader.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),out=path.join(root,'public/automation/out');
 const actual=JSON.parse(fs.readFileSync(path.join(out,'report.json')));
-const base=actual.status==='candidate'?path.join(out,'candidate'):root;
-const baseline=JSON.parse(fs.readFileSync(path.join(base,'public/automation/baseline.json')));
-const {clientProfiles}=await import(pathToFileURL(path.join(base,'public/extension/client/loader.mjs'))),profile=clientProfiles[0];
+const baseline=JSON.parse(fs.readFileSync(path.join(root,'public/automation/baseline.json')));
+let profile=clientProfiles[0];
+if(actual.status==='compatibility'){
+ const current=JSON.parse(fs.readFileSync(path.join(out,'compatibility.json')));
+ profile=profileFromMetadata(current,actual.entryURL,actual.entryHash);
+}
 const source=fs.readFileSync(path.join(out,'research',new URL(profile.entryURL).pathname.split('/').at(-1)),'utf8');
+const original=fingerprint(source,profile.entryURL,baseline.assets);
 const analysis=analyzeEntry(source,profile.entryURL,baseline.assets),top=analysis.manager.scopes.find(s=>s.type==='module');
 const names=[profile.boot.split('(')[0],profile.names.pAe,profile.names.Rke],edits=new Map();
 for(const [index,name]of names.entries()){
@@ -19,22 +25,25 @@ const changed=replaceNodes(source,[...edits.values()])+'\n// compatibility self-
 const url='https://speakirpg.overture.io.kr/assets/index-compatibilitySelfTest.js';
 const next=fingerprint(changed,url,baseline.assets);assert.ok(equivalent(baseline,next),'Pure renaming should pass');
 assert.ok(!equivalent(baseline,fingerprint(changed.replace(/\b128\b/,'129'),url,baseline.assets)),'Constant change must stop');
-const temporary=fs.mkdtempSync(path.join(out,'selftest-')),repo=path.join(temporary,'repo');fs.mkdirSync(path.join(repo,'public'),{recursive:true});
-fs.cpSync(path.join(base,'public/extension'),path.join(repo,'public/extension'),{recursive:true});
-fs.cpSync(path.join(root,'public/src'),path.join(repo,'public/src'),{recursive:true});
-fs.mkdirSync(path.join(repo,'public/automation'),{recursive:true});
-fs.writeFileSync(path.join(repo,'public/automation/baseline.json'),JSON.stringify(baseline));
-// The repository README is user-maintained. Local workspace has a separate personal README.
-const readme=fs.readFileSync(path.join(base,base===root&&!process.env.GITHUB_ACTIONS?'public/README.md':'README.md'),'utf8');
-fs.writeFileSync(path.join(repo,'README.md'),readme);
-const candidate=makeCandidate(repo,path.join(temporary,'candidate'),baseline,next,profile);
+const record=await compatibilityRecord(changed,original,next,profile);
+assert.equal(selectEntry([{src:'https://example.com/assets/index-bad.js'},{src:url}]),url);
+assert.equal(selectEntry([{src:profile.entryURL},{src:url}]),null);
+assert.equal((await prepareClient(changed,url,()=>record)).profile,'registry');
+for(const bad of [null,{...record,entryURL:profile.entryURL},{...record,hash:'a'.repeat(64)},
+ {...record,imports:record.imports+1},{...record,symbols:{...record.symbols,boot:'console'}},
+ {...record,symbols:{...record.symbols,boot:'a();alert(1);'}}]){
+ const fallback=await prepareClient(changed,url,()=>bad);
+ assert.equal(fallback.reviewed,false);
+ assert.equal(fallback.code,(await prepareClient(changed,url)).code);
+}
+const temporary=fs.mkdtempSync(path.join(out,'selftest-'));
 fs.cpSync(path.join(out,'research'),path.join(temporary,'research'),{recursive:true});
 fs.writeFileSync(path.join(temporary,'research/index-compatibilitySelfTest.js'),changed);
 fs.writeFileSync(path.join(temporary,'research/snapshot.json'),JSON.stringify(next));
-fs.writeFileSync(path.join(temporary,'report.json'),JSON.stringify({schema:1,status:'candidate',scope:'full',version:candidate.version,baseVersion:baseline.reviewedVersion,baseHash:baseline.entrySHA256,entryURL:url,entryHash:next.entrySHA256}));
+const encoded=JSON.stringify(record,null,2)+'\n';
+fs.writeFileSync(path.join(temporary,'compatibility.json'),encoded);
+fs.writeFileSync(path.join(temporary,'report.json'),JSON.stringify({schema:1,status:'compatibility',scope:'full',baseVersion:baseline.reviewedVersion,baseHash:baseline.entrySHA256,entryURL:url,entryHash:next.entrySHA256,recordSHA256:sha(encoded)}));
 const run=spawnSync(process.execPath,[path.join(root,'public/automation/validate.mjs')],{encoding:'utf8',timeout:120000,env:{...process.env,SPEAKI_AUTOMATION_OUT:temporary}});
 assert.equal(run.status,0,run.stderr+'\n'+run.stdout);
-const packageTest=spawnSync(process.env.PYTHON||'python3',[path.join(root,'public/automation/verify-candidate-fixture.py'),repo,temporary],{encoding:'utf8',timeout:30000});
-assert.equal(packageTest.status,0,packageTest.stderr+'\n'+packageTest.stdout);
-console.log(packageTest.stdout.trim());
-console.log('Artificial rename: candidate, bindings and nine regression suites passed; constant change rejected. No publication.');
+assert.equal(JSON.parse(fs.readFileSync(path.join(temporary,'report.json'))).validated,true);
+console.log('Artificial rename: the installed loader accepted the record and passed nine regression suites. Invalid records and constant change rejected.');

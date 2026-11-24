@@ -11,7 +11,7 @@ const browser = {window,document,HTMLElement:class{},localStorage:{getItem:k=>sa
 vm.createContext(browser);
 vm.runInContext(fs.readFileSync(new URL('../extension/sneak.js',import.meta.url),'utf8'),browser);
 const api=browser.__MINING_LOCAL_SNEAK__;
-let status,mode=0,menu=false,visible=true,queries=0,nativeCalls=0;
+let status,mode=0,menu=false,visible=true,queries=0,nativeCalls=0,climbing=false;
 api.subscribe(value=>{status=value});
 assert.equal(api.enabled,true);assert.equal(api.supported,false);
 const root={host:{isConnected:true,getClientRects:()=>visible?[{}]:[]},querySelector:()=>({}),activeElement:null};
@@ -30,7 +30,7 @@ function key(type,code='ShiftLeft',extra={}){
 }
 const camera = new T.tn(70,16/9,.04,240),target=new T.tt();target.position.set(.5,1,.5);
 const nativeCamera = new native.CameraClass({camera,target});
-function use(world){api.setContext({root,worldGroup:world.group,camera,getPerspective:()=>mode,isMenuOpen:()=>menu})}
+function use(world){api.setContext({root,worldGroup:world.group,camera,getPerspective:()=>mode,isMenuOpen:()=>menu,isClimbing:()=>climbing})}
 function body(x=.5,y=1,z=.5){return {...native.createBody(x,y,z),grounded:true,riseAnchorY:y}}
 function motion(x,z,jump=false){return {moveVx:x,moveVz:z,jump}}
 function slow(input){return {...input,moveVx:input.moveVx*.3,moveVz:input.moveVz*.3}}
@@ -126,6 +126,18 @@ check('first-person alone drops .35, without accumulation or target changes',()=
 });
 check('only one committed native body update per guarded frame',()=>{
  const world=new WorldClass().put(0,0,0);use(world);key('keydown');nativeCalls=0;run(world,body(),motion(4,0),120);assert.equal(nativeCalls,120);
+});
+check('holding Shift while climbing preserves native physics and eye height',()=>{
+ const world=new WorldClass().put(0,0,0).put(0,1,0,8).put(0,2,0,8);
+ use(world);key('keydown');mode=0;climbing=true;
+ const actual={...body(),grounded:false,climbing:true},expected={...actual};
+ const input=motion(2,0);
+ world.stepPhysics(actual,input,frame);
+ native.advance(world.query,expected,input,frame,world.metaQuery);
+ assert.deepEqual(actual,expected);
+ assert.equal(status.speedMultiplier,1);
+ nativeCamera.update();assert.equal(camera.position.y,2.5);
+ climbing=false;
 });
 const benchWorld=new WorldClass().put(0,0,0);use(benchWorld);key('keydown');const benchBody=body(1.32,1,.5);queries=0;
 const start=performance.now();run(benchWorld,benchBody,motion(4,0),1000);const ms=performance.now()-start;

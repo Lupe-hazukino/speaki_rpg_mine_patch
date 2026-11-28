@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "protocol": 1,
-  "desktopRevision": 5,
-  "version": "1.3.1-Plus",
-  "url": "https://raw.githubusercontent.com/Lupe-hazukino/speaki_rpg_mine_patch/ac2a54ec4c77782fa038f27541cfb5930dd1a32c/pc/releases/1.3.1-Plus.mjs",
-  "sha256": "2bdb7c88fe54406c456c19cbebe7aa2b95cca958c6d2484d15da39cc02886635",
-  "bytes": 296037
+  "desktopRevision": 6,
+  "version": "1.3.2-Plus",
+  "url": "https://raw.githubusercontent.com/Lupe-hazukino/speaki_rpg_mine_patch/3a2afc801b2f4a8cd042f01e43b2dfd6886ca87e/pc/releases/1.3.2-Plus.mjs",
+  "sha256": "07b145c8adb219f0b6f43b8b6a12424c87be9fddbf5cf138424349fd51e1649c",
+  "bytes": 300203
 }

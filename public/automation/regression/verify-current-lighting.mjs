@@ -1,6 +1,8 @@
 // Exercise the new vertical range, retaining the old client fallback. No server calls.
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import {createHash} from 'node:crypto';
-import * as T from '../../research/three.core-wy5OwqqC.js';
+import * as nativeThree from '../../research/three.core-CxShBFoc.js';
+import '../extension/three-exports.js';
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(nativeThree,new URL('../../research/three.core-CxShBFoc.js',import.meta.url));
 import {clientProfiles} from '../extension/client/loader.mjs';
 const root=new URL('../../',import.meta.url),extension=new URL('../extension/',import.meta.url),profile=clientProfiles.find(p=>p.id==='current');
 assert.ok(profile.bindings.includes('worldHeight:128'));

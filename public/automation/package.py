@@ -16,7 +16,7 @@ def package(candidate):
     manifest = json.loads((extension / 'manifest.json').read_text('utf8'))
     files = {p.relative_to(extension).as_posix(): p.read_bytes() for p in extension.rglob('*') if p.is_file()}
     expected = {p.relative_to(original).as_posix() for p in original.rglob('*') if p.is_file() and '_metadata' not in p.relative_to(original).parts}
-    assert set(files) == expected and len(files) == 21
+    assert set(files) == expected
     allowed_changes = {'manifest.json', 'main.js', 'README.txt', 'client/loader.mjs', 'rules.json'}
     for name, data in files.items():
         if name not in allowed_changes:

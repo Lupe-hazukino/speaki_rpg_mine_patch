@@ -40,4 +40,6 @@ try:
         raise AssertionError('Tampering was accepted')
 finally:
     protected.write_bytes(original)
-print(json.dumps({'deterministicZip': True, 'files': 21, 'changedFiles': len(changes), 'tamperingRejected': True, 'githubMutations': 0}))
+with zipfile.ZipFile(candidate / 'releases' / state['asset']) as archive:
+    file_count = len(archive.namelist())
+print(json.dumps({'deterministicZip': True, 'files': file_count, 'changedFiles': len(changes), 'tamperingRejected': True, 'githubMutations': 0}))

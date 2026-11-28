@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
-  "version": "1.2.9",
+  "version": "1.3.2",
   "description": "ｽﾋﾟｷMMO（ｽﾋﾟｷ育成）のゲーム内ゲーム「鉱山」で利用可能な操作改善非公式MODです。\nGMDTに許可を取っています。\nこのmodは、「鉱山」のみで動作します。\n\n以下は、主な変更点です。\n・アイテム欄のテクスチャ変更\n・アイテムのテクスチャ変更\n・UIの改善\n・キーバインドの変更および追加",
   "minimum_chrome_version": "111",
   "content_scripts": [
@@ -24,6 +24,7 @@
         "realistic-lighting.js",
         "realistic-water.js",
         "local-shadows.js",
+        "three-exports.js",
         "main.js"
       ],
       "run_at": "document_start",

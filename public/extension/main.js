@@ -4,6 +4,8 @@
   const resources = globalThis.__MINING_LOCAL_RESOURCES__;
   const i18n = globalThis.__MINING_LOCAL_I18N__;
   const {t, bind: text} = i18n;
+  const hostAdapter = globalThis.__MINING_LOCAL_HOST_ADAPTER__;
+  const externalCamera = () => !!hostAdapter?.cameraActive();
   const cameraFactory = globalThis.__MINING_LOCAL_CAMERA_FACTORY__;
   const avatarFactory = globalThis.__MINING_LOCAL_AVATAR_FACTORY__;
   const controlsFactory = globalThis.__MINING_LOCAL_CONTROLS_FACTORY__;
@@ -34,7 +36,7 @@
   if (!resources || document.documentElement?.hasAttribute("data-mining-local-loaded")) return;
   const hotbarControls = hotbarFactory?.(resources);
   const inventory = inventoryFactory?.(resources,hotbarControls);
-  const report = {version:"1.2.9",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
+  const report = {version:"1.3.2",edition:"native-distribution",locale:i18n.locale,hook:"waiting",roots:0,nameMode:"mining",appearance:"native-world-quarter-icons",settingsOpen:false,perspective:t('perspective0'),errors:[]};
   const itemIcons=iconsFactory?.(status=>{report.itemIcons=status;publish()});
   const shopCompass=compassFactory?.();
   function publish() {
@@ -93,7 +95,15 @@
   const movementKeys = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight", "Space"]);
   const heldMovement = new Set();
   const css=resources.css;
+  function syncEmbeddedSettings(root,state){
+    if(!state.embeddedSettings)return;
+    const panel=root.querySelector('.panelSettings');
+    if(panel&&state.dialog.parentElement!==panel)panel.append(state.dialog);
+    const opened=panel?.style.display==='block';
+    if(state.settingsOpen!==opened){state.settingsOpen=opened;report.settingsOpen=opened;publish();}
+  }
   function setModSettingsOpen(root, state, opened) {
+    if(state.embeddedSettings)return;
     if (state.settingsOpen === opened) return;
     state.settingsOpen = opened; state.overlay.hidden = !opened;
     state.settingsButton.setAttribute("aria-expanded", String(opened));
@@ -119,7 +129,9 @@
     const button = document.createElement("button");
     button.type = "button"; button.className = "btn mcModOpen";
     text(button, 'settingsButton'); button.setAttribute("aria-haspopup", "dialog"); button.setAttribute("aria-expanded", "false");
-    hud.append(button);
+    const embeddedSettings=!!hostAdapter?.settingsInNativePanel;
+    if(!embeddedSettings)hud.append(button);
+    else root.host.setAttribute('data-mining-local-settings','embedded');
     const ui = document.createElement("div"); ui.className = "mcModUi";
     const overlay = document.createElement("div"); overlay.className = "mcModOverlay"; overlay.hidden = true;
     const dialog = document.createElement("section"); dialog.className = "mcModDialog"; dialog.setAttribute("role", "dialog");
@@ -178,8 +190,14 @@
     const keys = document.createElement("p"); keys.className = "mcModKeys"; text(keys, 'closeKeys');
     const realismSection=document.createElement('section');realismSection.className='mcModVisualMode';realismSection.append(realismOption,realismHint);
     const shadowSection=document.createElement('section');shadowSection.className='mcModVisualMode';shadowSection.append(shadowOption,shadowHint,sunFieldset,rangeFieldset);
-    dialog.append(title, sneakOption, sneakHint, controlsOption, controlsHint, paperDollOption, paperDollHint, realismSection, shadowSection, viewHint, close, keys); overlay.append(dialog); ui.append(overlay); root.append(ui);
-    Object.assign(state, { settingsButton: button, overlay, dialog, sneakCheckbox, sneakHint, sneakWarning, controlsCheckbox, paperDollCheckbox, shadowCheckbox, shadowHint, realismCheckbox, realismSection, shadowSection, sunFieldset, sunRadios, rangeFieldset, rangeRadios, viewHint, closeButton: close, settingsOpen: false, lockedCanvas: null });
+    dialog.append(title, sneakOption, sneakHint, controlsOption, controlsHint, paperDollOption, paperDollHint, realismSection, shadowSection, viewHint);
+    if(embeddedSettings){
+      dialog.className='mcModEmbedded';dialog.removeAttribute('role');dialog.removeAttribute('aria-modal');
+    }else{
+      dialog.append(close,keys);overlay.append(dialog);ui.append(overlay);root.append(ui);
+    }
+    Object.assign(state, { embeddedSettings,uiRoot:ui,settingsButton: button, overlay, dialog, sneakCheckbox, sneakHint, sneakWarning, controlsCheckbox, paperDollCheckbox, shadowCheckbox, shadowHint, realismCheckbox, realismSection, shadowSection, sunFieldset, sunRadios, rangeFieldset, rangeRadios, viewHint, closeButton: close, settingsOpen: false, lockedCanvas: null });
+    syncEmbeddedSettings(root,state);
     syncSneakSettings(state);
     syncSunSettings(state);
     sneakCheckbox.addEventListener("change", () => { sneak?.setEnabled(sneakCheckbox.checked); syncSneakSettings(state); });
@@ -191,9 +209,14 @@
 
   }
   window.addEventListener("keydown", event => {
+    if (hostAdapter?.settingsKey === false && ['F2','F4'].some(key => event.code === key || event.key === key)) return;
+    if (externalCamera()) return;
     const active = activeMineUI;
     if (!active?.root.host.isConnected || !active.root.querySelector(".mhud") || !active.root.host.getClientRects().length) return;
     const { root, state } = active;
+    syncEmbeddedSettings(root,state);
+    // The native O panel owns keyboard handling, focus and closing.
+    if(state.embeddedSettings&&state.settingsOpen)return;
     if (inputControls?.nativeHudHidden) return;
     const typing = event.composedPath().some(element => element instanceof HTMLElement && (element.isContentEditable || element.matches("textarea,select,input:not([type=checkbox]):not([type=radio]):not([type=button])")));
     if (event.code === "KeyM" && !typing && !event.isComposing && !event.ctrlKey && !event.altKey && !event.metaKey) {
@@ -223,6 +246,15 @@
       } else if (!state.dialog.contains(root.activeElement)) event.preventDefault();
       return;
     }
+    if (!hostAdapter && event.code === "F9" && !typing && !event.isComposing && !event.ctrlKey && !event.altKey && !event.metaKey) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      if (!event.repeat) {
+        state.photoStage = (state.photoStage + 1) % 3;
+        if (state.photoStage) state.hud.setAttribute("data-mining-photo-stage", String(state.photoStage));
+        else state.hud.removeAttribute("data-mining-photo-stage");
+      }
+      return;
+    }
     if (inputControls?.handleKey(event)) return;
     if (inventory?.handleKey(event)) return;
     if (!typing && movementKeys.has(event.code)) heldMovement.add(event.code);
@@ -233,15 +265,17 @@
     const hud = root.querySelector(".mhud");
     if (!hud) return null;
     const previous = mineRoots.get(root);
-    if (previous?.hud === hud && previous.settingsButton.isConnected) return previous;
+    if (previous?.hud === hud && (previous.embeddedSettings||previous.settingsButton.isConnected)) {
+      syncEmbeddedSettings(root,previous);return previous;
+    }
     if (previous) {
       paperDoll?.release(root);
-      previous.observer.disconnect(); previous.settingsButton.remove(); previous.sneakWarning.remove(); previous.overlay.parentElement.remove();
+      previous.observer.disconnect(); previous.settingsButton.remove(); previous.sneakWarning.remove(); previous.uiRoot.remove();previous.dialog.remove();
       report.settingsOpen = false;
     }
     let style = root.querySelector("style[data-mining-local]");
     if (!style) { style = document.createElement("style"); style.dataset.miningLocal = "true"; style.textContent = css; root.append(style); }
-    const state = { hud, tier: 1, queued: false, observer: null, nameTexts: new WeakMap(), nameAttributes: new WeakMap() };
+    const state = { hud, tier: 1, photoStage: 0, queued: false, observer: null, nameTexts: new WeakMap(), nameAttributes: new WeakMap() };
     const buildButton=hud.querySelector('.addChip');
     if(buildButton){text(buildButton,'buildOpen',{},'title','ui.mining.build.openLabel');text(buildButton,'buildOpen',{},'aria-label','ui.mining.build.openLabel')}
     installModSettings(root, state);
@@ -250,7 +284,7 @@
       state.queued = true;
       queueMicrotask(() => {
         state.queued = false;
-        try { itemIcons?.update(root); inventory?.update(root); inputControls?.update(); } catch (e) { warn(e); }
+        try { syncEmbeddedSettings(root,state);itemIcons?.update(root); inventory?.update(root); inputControls?.update(); } catch (e) { warn(e); }
       });
     });
     state.observer.observe(root, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["style", "title", "aria-label", "class"] });
@@ -265,20 +299,22 @@
     publish();
   });
   function observeViewmodel(scene,root,ui) {
+    if (externalCamera()) return;
     const rig=scene.children.find(o=>o.isGroup&&o.children.some(c=>c.isGroup&&c.children.length>=4));
     if(!rig)return;
     const tool=rig.children.find(o=>o.isGroup&&o.children.length>=4),head=tool?.children[1]?.material;
     const tier=globalThis.__MINING_LOCAL_NATIVE_API__?.tierFromColor(head?.color?.getHex())||ui.tier||1;
     ui.tier=tier;
     cameraViews.setViewmodelSource(root,{rig,ambient:scene.children.find(o=>o.isAmbientLight),tier});
-    if(perspective!==0||inputControls?.hudHidden){
+    if(perspective!==0||inputControls?.hudHidden||ui.photoStage===2){
       const saved=[];
       for(const object of scene.children)if(object.isGroup||object.isMesh){saved.push([object,object.visible]);object.visible=false}
       renderMasks.set(scene,saved);
     }
   }
   async function installHook(url) {
-    const module = await import(url);
+    const source = await import(url);
+    const module = globalThis.__MINING_LOCAL_THREE_EXPORTS__?.(source, url) ?? source;
     const required = { Scene:"sr", Group:"tt", Mesh:"Lt", BufferGeometry:"v", Float32BufferAttribute:"X", MeshBasicMaterial:"Rt", BoxGeometry:"g", CanvasTexture:"x", Vector3:"Lr", Raycaster:"Yn", AnimationMixer:"a" };
     three = Object.fromEntries(Object.entries(required).map(([name,key]) => [name,module[key]]));
     if (!three.Scene || !(new three.Scene()).isScene || !(new three.BoxGeometry()).isBufferGeometry || !(new three.MeshBasicMaterial()).isMeshBasicMaterial) {
@@ -296,7 +332,8 @@
     const previous = three.Scene.prototype.onBeforeRender;
     const after = three.Scene.prototype.onAfterRender;
     three.Scene.prototype.onBeforeRender = function(renderer, scene, camera, target) {
-      if(this.userData.miningLocalPaperDoll||this.userData.miningLocalWaterCapture)return;
+      if(this.userData.miningLocalPaperDoll){hostAdapter?.applyBodyWidth?.(this);return}
+      if(this.userData.miningLocalWaterCapture)return;
       if (typeof previous === "function") previous.apply(this, arguments);
       try {
         cameraViews.captureTown(this, renderer);
@@ -304,29 +341,38 @@
         if (!(root instanceof ShadowRoot) || !root.querySelector(".mhud")) return;
         const ui = installUI(root);
         activeMineUI = { root, state: ui };
-        inputControls?.setContext({root,isMenuOpen:()=>ui.settingsOpen});
-        hotbarControls?.setContext({root,isMenuOpen:()=>ui.settingsOpen});
+        inputControls?.setContext({root,isMenuOpen:()=>ui.settingsOpen || externalCamera()});
+        hotbarControls?.setContext({root,isMenuOpen:()=>ui.settingsOpen || externalCamera()});
         const world = this.children.find(o => o.name === "voxelWorld");
         if (world) {
           if(itemIcons?.capture(world)){itemIcons.update(root);inventory?.update(root)}
-          sneak?.setContext({root,worldGroup:world,camera,getPerspective:()=>perspective,isMenuOpen:()=>ui.settingsOpen,
+          sneak?.setContext({root,worldGroup:world,camera,getPerspective:()=>perspective,isMenuOpen:()=>ui.settingsOpen || externalCamera(),
             isClimbing:()=>localShadows?.isClimbing(this)});
           // Keep the native eye as the shadow range/light anchor; inspect the
           // avatar only after this draw's position, animation and visibility.
           if(localShadows?.rendering)shadowEye.copy(camera.position);
-          cameraViews.beforeWorld(this, world, camera, perspective, root);
-          paperDoll?.beforeWorld(root,ui.hud,world,cameraViews.getLocalPose(root),perspective);
+          if (externalCamera()) {
+            hostAdapter?.prepareCameraAvatar?.(nativeAvatars);
+            cameraViews.suspend(this, camera, root);
+            if (ui.settingsOpen) setModSettingsOpen(root, ui, false);
+          } else {
+            cameraViews.beforeWorld(this, world, camera, perspective, root);
+            paperDoll?.beforeWorld(root,ui.hud,world,cameraViews.getLocalPose(root),perspective);
+          }
+          hostAdapter?.syncAvatarEffects?.(this);
           localShadows?.beforeWorld(this,world,camera,renderer,shadowEye);
+          hostAdapter?.applyBodyWidth?.(this);
           shopCompass?.update(root,camera);
         } else observeViewmodel(this,root,ui);
       } catch (e) { warn(e); }
     };
     three.Scene.prototype.onAfterRender = function(renderer, scene, camera) {
+      hostAdapter?.restoreBodyWidth?.(this);
       if(this.userData.miningLocalPaperDoll||this.userData.miningLocalWaterCapture)return;
       try { cameraViews.afterWorld(this, camera); } catch (e) { warn(e); }
       for(const [object,visible] of renderMasks.get(this)||[])object.visible=visible;renderMasks.delete(this);
       if (typeof after === "function") after.apply(this, arguments);
-      if(this.children.some(object=>object.name==='voxelWorld')){
+      if(!externalCamera() && this.children.some(object=>object.name==='voxelWorld')){
         try{paperDoll?.render(renderer.domElement.getRootNode(),renderer)}catch(e){warn(e)}
       }
     };

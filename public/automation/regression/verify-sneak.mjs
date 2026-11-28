@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import * as native from '../../work/evidence/current/current-native.mjs';
-import * as T from '../../research/three.core-wy5OwqqC.js';
+import * as nativeThree from '../../research/three.core-CxShBFoc.js';
+import '../extension/three-exports.js';
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(nativeThree,new URL('../../research/three.core-CxShBFoc.js',import.meta.url));
 
 const window = new EventTarget(),document = new EventTarget();
 document.activeElement=null;document.hidden=false;

@@ -18,6 +18,7 @@ fs.cpSync(path.join(out,'research'),path.join(runtime,'research'),{recursive:tru
 fs.cpSync(path.join(root,'public/automation/regression'),path.join(runtime,'public/tools'),{recursive:true});
 fs.mkdirSync(path.join(runtime,'tools/vendor'),{recursive:true});
 fs.writeFileSync(path.join(runtime,'tools/vendor/acorn.mjs'),'export {parse} from '+JSON.stringify(pathToFileURL(path.join(root,'public/automation/node_modules/acorn/dist/acorn.mjs')).href)+';');
+fs.writeFileSync(path.join(runtime,'tools/vendor/eslint-scope.mjs'),'export {analyze} from '+JSON.stringify(pathToFileURL(path.join(root,'public/automation/node_modules/eslint-scope/lib/index.js')).href)+';');
 const {clientProfiles,prepareClient,profileFromMetadata}=await import(pathToFileURL(path.join(extension,'client/loader.mjs')));
 let profile=clientProfiles[0],lookup;
 if(report.status==='compatibility'){

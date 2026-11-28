@@ -113,6 +113,12 @@ globalThis.__MINING_LOCAL_CAMERA_FACTORY__ = (three, onStatus, avatars) => {
     camera.position.copy(state.position); camera.quaternion.copy(state.quaternion); camera.updateMatrixWorld(true); state.snapshot = null;
   }
   function setViewmodelSource(root,source){controls.set(root,source)}
+  function suspend(scene,camera,root){
+    afterWorld(scene,camera);
+    const state=states.get(scene);
+    if(state){state.player.visible=false;state.lastTime=0;}
+    avatars.setLocalViewAvatar?.(root,null,false);
+  }
   if(typeof window!=="undefined") {
     window.addEventListener("pointerdown",event=>{
       if(event.button===0&&event.composedPath().some(element=>element instanceof HTMLElement&&element.tagName==="CANVAS"))primaryHeld=true;
@@ -121,5 +127,5 @@ globalThis.__MINING_LOCAL_CAMERA_FACTORY__ = (three, onStatus, avatars) => {
     window.addEventListener("blur",()=>{primaryHeld=false});
     document.addEventListener("pointerlockchange",()=>{if(!document.pointerLockElement)primaryHeld=false});
   }
-  return {captureTown,beforeWorld,afterWorld,setViewmodelSource,getOwnModel:nativeModel,getLocalPose:root=>localPoses.get(root)};
+  return {captureTown,beforeWorld,afterWorld,suspend,setViewmodelSource,getOwnModel:nativeModel,getLocalPose:root=>localPoses.get(root)};
 };

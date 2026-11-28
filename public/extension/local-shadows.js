@@ -164,9 +164,12 @@ globalThis.__MINING_LOCAL_SHADOWS_FACTORY__=(T,onStatus,options)=>{
   function updateEnvironment(state,camera,eye){
     const time=effectiveTime(),preset=SUN[time],distance=Math.min(120,Number.isFinite(camera.far)?camera.far*.8:120);
     state.sunDirection.set(...preset.offset).normalize();
-    state.sun.position.copy(camera.position).addScaledVector(state.sunDirection,distance);
-    state.sun.quaternion.copy(camera.quaternion);state.sun.scale.setScalar(distance*.065);
-    state.sun.material.color.setHex(preset.color);state.sun.updateWorldMatrix(true,false);
+    state.sun.visible=!realistic;
+    if(state.sun.visible){
+      state.sun.position.copy(camera.position).addScaledVector(state.sunDirection,distance);
+      state.sun.quaternion.copy(camera.quaternion);state.sun.scale.setScalar(distance*.065);
+      state.sun.material.color.setHex(preset.color);state.sun.updateWorldMatrix(true,false);
+    }
     const ambient=time==='evening' ? .34 : time==='morning' ? .38 : .44;
     state.lighting.value.set(ambient,1-ambient,0);
     state.sky.visible=realistic||time==='evening';

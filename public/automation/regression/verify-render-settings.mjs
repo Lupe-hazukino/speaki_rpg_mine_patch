@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-import * as T from '../../research/three.core-wy5OwqqC.js';
+import * as nativeThree from '../../research/three.core-CxShBFoc.js';
+import '../extension/three-exports.js';
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(nativeThree,new URL('../../research/three.core-CxShBFoc.js',import.meta.url));
 const root=new URL('../../',import.meta.url),extension=new URL('../extension/',import.meta.url),evidence=new URL('work/evidence/public-'+JSON.parse(fs.readFileSync(new URL('manifest.json',extension),'utf8')).version+'/',root);
 const read=file=>fs.readFileSync(new URL(file,extension),'utf8');
 const css=fs.readFileSync(new URL('../src/mining.css',import.meta.url),'utf8');

@@ -26,7 +26,9 @@ for(const [node,methods]of [[physics,['stepPhysics','setTorchRadius','rebuild']]
 // Load native modules without downloading models or connecting to the game.
 // Export names can change while the entry point still exposes valid bindings.
 const assets=await import(new URL('research/'+profile.avatarAssets,root));
-const T=await import(new URL('research/three.core-wy5OwqqC.js',root));
+await import('../extension/three-exports.js');
+const threeURL=new URL('research/three.core-CxShBFoc.js',root);
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(await import(threeURL),threeURL);
 const names=profile.avatarAssetExports;
 assert.equal(assets[names.defaultExpression],'open_smile');
 const model=new T.tt(),material=new T.Gt();material.name='Face';

@@ -1,8 +1,10 @@
 // Native lit/dark terrain splitting must coexist with both MOD lighting modes.
 // Execute reviewed native mesh construction/culling with a local mesher fixture.
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
-import {parse}from '../../tools/vendor/acorn.mjs';import {analyze}from 'eslint-scope';
-import * as T from '../../research/three.core-wy5OwqqC.js';import {clientProfiles}from '../extension/client/loader.mjs';
+import {parse}from '../../tools/vendor/acorn.mjs';import {analyze}from '../../tools/vendor/eslint-scope.mjs';
+import * as nativeThree from '../../research/three.core-CxShBFoc.js';
+import '../extension/three-exports.js';
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(nativeThree,new URL('../../research/three.core-CxShBFoc.js',import.meta.url));import {clientProfiles}from '../extension/client/loader.mjs';
 const root=new URL('../../',import.meta.url),profile=clientProfiles[0],source=fs.readFileSync(new URL('research/'+new URL(profile.entryURL).pathname.split('/').at(-1),root),'utf8');
 const ast=parse(source,{ecmaVersion:'latest',sourceType:'module',ranges:true}),declarations=new Map();
 for(const n of ast.body){if(n.type==='FunctionDeclaration')declarations.set(n.id.name,n);for(const d of n.declarations||[])declarations.set(d.id.name,d.init);}
@@ -13,7 +15,7 @@ const methods=['rebuild','cullBeyondFog','disposeRender'].map(name=>slice(method
 const program='class NativeWorld{'+methods+'}\nglobalThis.NativeWorld=NativeWorld;',helpers=new Map(),externals=new Set();
 const refs=code=>analyze(parse(code,{ecmaVersion:'latest',sourceType:'module',ranges:true}),{ecmaVersion:2025,sourceType:'module'}).globalScope.through.map(r=>r.identifier.name);
 const collect=code=>{for(const name of refs(code)){if(name===mesher||helpers.has(name)||externals.has(name))continue;const n=declarations.get(name);if(!n){externals.add(name);continue;}assert.ok(helpers.size<100,'Unexpected native dependency expansion');const s=n.type==='FunctionDeclaration'?slice(n):'const '+name+'='+slice(n)+';';helpers.set(name,s);collect(s);}};collect(program);
-const imports={};for(const n of ast.body.filter(n=>n.type==='ImportDeclaration'&&n.source.value.includes('three.core-')))for(const s of n.specifiers)imports[s.local.name]=T[s.imported.name];
+const imports={};for(const n of ast.body.filter(n=>n.type==='ImportDeclaration'&&n.source.value.includes('three.core-')))for(const s of n.specifiers)imports[s.local.name]=nativeThree[s.imported.name];
 const scope=vm.createContext({...imports,performance:{now:()=>1000},[mesher]:()=>scope.meshFixture});
 // Functions can refer forward to constants, but constant initializers need dependency order.
 vm.runInContext([...helpers].sort(([a],[b])=>declarations.get(a).start-declarations.get(b).start).map(([,s])=>s).join('\n')+'\n'+program,scope);

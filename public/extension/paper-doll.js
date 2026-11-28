@@ -39,9 +39,10 @@ globalThis.__MINING_LOCAL_PAPER_DOLL_FACTORY__=(T,avatars,onStatus)=>{
     if(!state)state=create(root,hud,world);if(!state)return;
     state.hidden=false;state.anchor.hidden=false;
     const source=avatars.getOwnModel();if(!source){state.hidden=true;return}
-    if(!state.lease||state.source!==source){
+    const skinKey=avatars.skinCodeFromModel?.(source)??source.uuid;
+    if(!state.lease||state.source!==source||state.skinKey!==skinKey){
       state.lease?.dispose();state.source=source;state.lease=avatars.create();state.scene.add(state.lease.avatar.group);
-      state.ready=false;state.mining=false;
+      state.skinKey=skinKey;state.ready=false;state.mining=false;state.aspect=0;
     }
     const avatar=state.lease.avatar;if(!avatar.current)return;
     // Fit idle dimensions so enabling this while fallen does not crop standing.

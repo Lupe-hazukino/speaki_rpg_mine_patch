@@ -202,7 +202,11 @@
     return normalize(document.documentElement?.lang) || normalize(navigator.language) || 'en';
   }
   function t(key, params = {}) {
-    const value = messages[locale]?.[key] ?? messages.en[key] ?? key;
+    let value = messages[locale]?.[key] ?? messages.en[key] ?? key;
+    if (globalThis.__MINING_LOCAL_HOST_ADAPTER__?.settingsKey === false) {
+      if (key === 'settingsButton') value = value.replace(/\s*\[F2\]/g, '');
+      if (key === 'closeKeys') value = value.replace(/F2\s*\/\s*/g, '');
+    }
     return value.replace(/\{(\w+)\}/g, (placeholder, name) => params[name] === undefined ? placeholder : String(params[name]));
   }
   function nativeText(key, fallback) {

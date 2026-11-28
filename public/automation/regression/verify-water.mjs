@@ -3,7 +3,9 @@ import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import * as T from '../../research/three.core-wy5OwqqC.js';
+import * as nativeThree from '../../research/three.core-CxShBFoc.js';
+import '../extension/three-exports.js';
+const T=globalThis.__MINING_LOCAL_THREE_EXPORTS__(nativeThree,new URL('../../research/three.core-CxShBFoc.js',import.meta.url));
 import {waterCells,voxelWater} from './voxel-water.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');

@@ -69,7 +69,7 @@ def verify_candidate(root, candidate, report):
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
         assert archive.testzip() is None
         assert set(archive.namelist()) == {'Speaki_rpg_mine_patch/' + p.removeprefix('public/extension/') for p in extension_names}
-        assert len(archive.namelist()) == 21
+        assert len(archive.namelist()) == len(extension_names)
         for name in extension_names:
             assert archive.read('Speaki_rpg_mine_patch/' + name.removeprefix('public/extension/')) == files[name]
     # Commit only changed files; no workflow, test or private file can come from an artifact.

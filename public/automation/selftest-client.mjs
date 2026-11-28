@@ -5,7 +5,7 @@ import {analyzeEntry,fingerprint,equivalent,sha} from './analyze.mjs';
 import {replaceNodes} from './prepare.mjs';
 import {compatibilityRecord} from './metadata.mjs';
 import {clientProfiles,prepareClient,profileFromMetadata,selectEntry} from '../extension/client/loader.mjs';
-const root=fileURLToPath(new URL('../../',import.meta.url)),out=path.join(root,'public/automation/out');
+const root=fileURLToPath(new URL('../../',import.meta.url)),out=process.env.SPEAKI_AUTOMATION_OUT||path.join(root,'public/automation/out');
 const actual=JSON.parse(fs.readFileSync(path.join(out,'report.json')));
 const baseline=JSON.parse(fs.readFileSync(path.join(root,'public/automation/baseline.json')));
 let profile=clientProfiles[0];

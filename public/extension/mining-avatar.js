@@ -3,6 +3,13 @@
   let api,resolveAPI,ownWorld=null;
   const localAnimations=new WeakMap(),localViews=new WeakMap();
   const nativeReady=new Promise(resolve=>{resolveAPI=resolve});
+  // Hide only identified hand props on mining display models, never the town model.
+  function hideSkinHandProps(root){
+    root?.traverse(object=>{
+      if(object.userData?.spkmodSkinHandProp===true)object.visible=false;
+    });
+  }
+  globalThis.__MINING_LOCAL_HIDE_SKIN_HAND_PROPS__=hideSkinHandProps;
   function ownModel(){
     return ownWorld?.localAvatarPose?.children.find(child=>child.userData.skinAvatarRoot)||ownWorld?.localAvatar?.root||null;
   }
@@ -13,7 +20,8 @@
       const original=value.GameWorldClass?.prototype[name];
       if(!original)continue;
       value.GameWorldClass.prototype[name]=function(){
-        const result=original.apply(this,arguments);ownWorld=this;return result;
+        const result=original.apply(this,arguments);ownWorld=this;
+        globalThis.__MINING_LOCAL_HOST_ADAPTER__?.bindAvatarWorld?.(this);return result;
       };
     }
     const scene=value.SceneClass?.prototype;
@@ -40,6 +48,10 @@
       const animation=scene.animationControllerOf;
       scene.animationControllerOf=function(playerId){
         const original=animation.apply(this,arguments),view=localViews.get(this.shadow);
+        if(this.active&&playerId===this.myObjectId){
+          const synced=globalThis.__MINING_LOCAL_HOST_ADAPTER__?.miningAnimationController?.();
+          if(synced)return synced;
+        }
         if(original||!this.active||playerId!==this.myObjectId||!view?.enabled)return original;
         return view.avatar?.animationController??original;
       };
@@ -47,6 +59,7 @@
     if(scene?.exit){
       const exit=scene.exit;
       scene.exit=function(){
+        globalThis.__MINING_LOCAL_HOST_ADAPTER__?.releaseAvatarEffects?.();
         localAnimations.delete(this.shadow);localViews.delete(this.shadow);
         return exit.apply(this,arguments);
       };
@@ -86,8 +99,12 @@
       const {root:sourceRoot,source,controller}=selected;
       const instance=api.cloneAvatar(source,{faceIsolation:{enabled:true,restPositions:assets._(source)}});
       const model=instance.root,mixer=controller?new module.a(model):null,faceMaterials=assets.D(model);
+      hideSkinHandProps(model);
       const isMaid=sourceRoot===ownWorld?.localAvatar?.root&&ownWorld.localSkinInstalledCode==='SKIN_SPEAKI_MAID';
-      let clips=controller?.sourceClips;
+      // Extra emote clips arrive after the base model. addClips keeps them in
+      // actions, not sourceClips; copying sourceClips alone loses jump/dance.
+      let clips=controller?new Map(controller.sourceClips):null;
+      if(controller?.actions)for(const [name,action] of controller.actions)clips.set(name,action.getClip());
       if(isMaid){
         // The skin adds its vacuum as a separate hand attachment. Hide it on the mining copy.
         model.traverse(object=>{
@@ -103,9 +120,20 @@
       const face=textures&&faceMaterials.length?new assets.T(faceMaterials,textures):null;
       face?.setExpression(assets.w);
       const animation=controller?new assets.y(mixer,clips,face):null,root=new module.tt(),visual=new module.tt();
+      const syncClips=()=>{
+        if(!animation||!controller?.actions)return;
+        const late=new Map();
+        for(const [name,action] of controller.actions)if(!animation.actions.has(name))late.set(name,action.getClip());
+        if(late.size)animation.addClips(late);
+      };
       visual.add(model);root.add(visual);
       if(sourceRoot.userData.skinAvatarRoot)root.userData.skinAvatarRoot=true;
-      return {root,animationController:animation,faceExpression:face,update:dt=>animation?.update(dt),dispose:()=>{mixer?.stopAllAction();mixer?.uncacheRoot(model);instance.dispose()}};
+      return {root,animationController:animation,faceExpression:face,syncClips,update:dt=>{
+        syncClips();
+        animation?.update(dt);
+        // A visibility animation must not bring skin props back over the pickaxe.
+        hideSkinHandProps(model);
+      },dispose:()=>{mixer?.stopAllAction();mixer?.uncacheRoot(model);instance.dispose()}};
     }
     function create(){
       class LocalAvatar extends api.AvatarClass {
@@ -118,6 +146,7 @@
           this.current=instance;this.group.add(instance.root);this.disposePlaceholder();
           this.hideStaff(instance.root);this.buildSwingBones(instance.root);this.attachPickaxe(instance.root);
           this.collectTintEntries(instance.root);this.syncAnimState();
+          globalThis.__MINING_LOCAL_HOST_ADAPTER__?.registerAvatar?.(this);
         }
         attachPickaxe(root){super.attachPickaxe(root);this.setPickaxeTier(this.pickaxeTier||1);if(this.pickaxe)this.pickaxe.visible=true}
         updateSwing(dt){super.updateSwing(dt);if(this.pickaxe)this.pickaxe.visible=true}
@@ -130,9 +159,14 @@
         }
       }
       const kit=new api.PickaxeKit(),avatar=new LocalAvatar({skinCode:null,labelText:null,placeholderColor:0x694579,kit,onImpact:()=>{}});
-      return {avatar,dispose:()=>{avatar.dispose();kit.dispose()}};
+      const dispose=avatar.dispose.bind(avatar);let released=false;
+      // F4's owner disposes the avatar directly; release its private kit there too.
+      avatar.dispose=()=>{if(released)return;released=true;
+        globalThis.__MINING_LOCAL_HOST_ADAPTER__?.releaseAvatar?.(avatar);dispose();kit.dispose()};
+      return {avatar,dispose:()=>avatar.dispose()};
     }
-    return {ready,create,getOwnModel:ownModel,skinCodeFromModel:root=>root?.uuid||null,renderer:'native-mining-multiplayer',
+    return {ready,create,getOwnModel:ownModel,skinCodeFromModel:root=>root?
+      globalThis.__MINING_LOCAL_HOST_ADAPTER__?.appearanceKey?.(root)??root.uuid:null,renderer:'native-mining-multiplayer',
       getAnimState(root){const value=localAnimations.get(root);return value?.scene.active?value.state:0},
       setLocalViewAvatar(root,avatar,enabled){localViews.set(root,{avatar,enabled})},
       releaseLocalViewAvatar(root,avatar){if(localViews.get(root)?.avatar===avatar)localViews.delete(root)}
